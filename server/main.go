@@ -21,11 +21,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func handleRequests() {
 	http.HandleFunc("/", homePage)
-	http.HandleFunc("/business-day", getIsBusinessDay)
+	http.HandleFunc("/business-day", IsBusinessDayHandler)
 	log.Fatal(http.ListenAndServe(":54528", nil))
 }
 
-func getIsBusinessDay(w http.ResponseWriter, r *http.Request) {
+func IsBusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: getIsBusinessDay")
 
 	query := r.URL.Query()
@@ -45,7 +45,7 @@ func getIsBusinessDay(w http.ResponseWriter, r *http.Request) {
 func IsBusinessDay(dateString string) bool {
 	date, err := time.Parse("2006-01-02", dateString)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	return !(date.Weekday() == time.Saturday || date.Weekday() == time.Sunday || holiday.IsHoliday(date))
