@@ -1,7 +1,7 @@
 FROM ubuntu:21.04
 
 RUN apt-get update
-RUN apt-get install -y wget make git
+RUN apt-get install -y wget make git build-essential
 
 # Go
 WORKDIR /app
