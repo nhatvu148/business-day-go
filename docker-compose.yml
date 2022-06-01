@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  golang-server:
+    container_name: golang-server
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "54528:54528"
+    volumes:
+      - .:/app

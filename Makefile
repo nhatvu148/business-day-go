@@ -4,3 +4,6 @@ server:
 
 client: 
 	cd ./cmd/cli && go run main.go
+
+test:
+	cd ./server && go test .
