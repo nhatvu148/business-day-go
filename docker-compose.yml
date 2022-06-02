@@ -7,5 +7,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+    environment:
+      - LOG_TYPE=USER_FRIENDLY
     ports:
       - "54528:54528"
