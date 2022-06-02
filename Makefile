@@ -7,3 +7,6 @@ client:
 
 test:
 	cd ./server && go test -cover .
+
+build:
+	cd ./server && go build -o main main.go

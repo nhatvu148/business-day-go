@@ -1,13 +1,12 @@
-FROM ubuntu:21.04
-
-RUN apt-get update
-RUN apt-get install -y wget make git build-essential
-
-# Go
+# Build stage
+FROM golang:1.18.3-alpine3.16 AS builder
 WORKDIR /app
-RUN wget -c https://dl.google.com/go/go1.18.2.linux-amd64.tar.gz -O - | tar -xz -C /usr/local
-ENV PATH=$PATH:/usr/local/go/bin
-RUN go version
-RUN go env
+COPY . .
+RUN cd ./server && go build -o main main.go
 
-CMD ["make", "server"]
+# Run stage
+FROM alpine:3.16
+WORKDIR /app
+COPY --from=builder /app/server/main .
+
+CMD [ "/app/main" ]

@@ -5,7 +5,9 @@ services:
     container_name: golang-server
     restart: always
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       context: .
     ports:
       - "54528:54528"
+    volumes:
+      - .:/app
