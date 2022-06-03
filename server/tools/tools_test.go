@@ -46,11 +46,11 @@ func TestIsValidDate(t *testing.T) {
 		checkValidDateResult(t, "2022-06-01", true)
 	})
 
-	t.Run("Test Case 1", func(t *testing.T) {
+	t.Run("Test Case 2", func(t *testing.T) {
 		checkValidDateResult(t, "2022-06-40", false)
 	})
 
-	t.Run("Test Case 1", func(t *testing.T) {
+	t.Run("Test Case 3", func(t *testing.T) {
 		checkValidDateResult(t, "123456abc", false)
 	})
 }
