@@ -50,7 +50,7 @@ func TestIsBusinessDayHandler(t *testing.T) {
 		checkBusinessDayResult(t, "2022-12-24", false)
 	})
 
-	// t.Run("Test Case 4", func(t *testing.T) {
-	// 	checkBusinessDayResult(t, "abcde", false)
-	// })
+	t.Run("Test Case 4", func(t *testing.T) {
+		checkBusinessDayResult(t, "abcde", false)
+	})
 }
