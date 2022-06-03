@@ -13,7 +13,8 @@ import (
 )
 
 type BusinessDayResult struct {
-	Result bool `json:"result"`
+	Result bool   `json:"result"`
+	Error  string `json:"error"`
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -27,13 +28,39 @@ func handleRequests() {
 	log.Fatal().Err(http.ListenAndServe(":54528", nil)).Msg("")
 }
 
+func IsValidDate(dateString string) (bool, time.Time) {
+	date, err := time.Parse("2006-01-02", dateString)
+	if err != nil {
+		return false, date
+	}
+	return true, date
+}
+
 func IsBusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("Endpoint Hit: getIsBusinessDay")
 
 	query := r.URL.Query()
-	date := query.Get("date")
+	dateString := query.Get("date")
 
-	result := BusinessDayResult{Result: IsBusinessDay(date)}
+	var result BusinessDayResult
+	isDateValid, date := IsValidDate(dateString)
+	if !isDateValid {
+		result = BusinessDayResult{
+			Result: false,
+			Error:  "Invalid date",
+		}
+		jsonResp, err := json.Marshal(result)
+
+		if err != nil {
+			log.Error().Err(err).Msg("")
+		}
+
+		w.WriteHeader(500)
+		w.Write(jsonResp)
+		return
+	}
+
+	result = BusinessDayResult{Result: IsBusinessDay(date), Error: ""}
 	res, err := json.Marshal(result)
 
 	if err != nil {
@@ -44,12 +71,7 @@ func IsBusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(string(res)))
 }
 
-func IsBusinessDay(dateString string) bool {
-	date, err := time.Parse("2006-01-02", dateString)
-	if err != nil {
-		log.Error().Err(err).Msg("")
-	}
-
+func IsBusinessDay(date time.Time) bool {
 	return !(date.Weekday() == time.Saturday || date.Weekday() == time.Sunday || holiday.IsHoliday(date))
 }
 
