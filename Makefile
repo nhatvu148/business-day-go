@@ -6,7 +6,7 @@ client:
 	cd ./cmd/cli && go run main.go
 
 test:
-	cd ./server && go test -cover .
+	cd ./server && go test -cover ./...
 
 build:
 	cd ./server && go build -o main main.go
