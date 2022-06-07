@@ -1,12 +1,11 @@
-.PHONY: server
 server: 
-	export LOG_TYPE=USER_FRIENDLY && cd ./server && go run main.go
+	export LOG_TYPE=USER_FRIENDLY && cd ./cmd && go run ./server
 
 client: 
-	cd ./cmd/cli && go run main.go
+	cd ./cmd && go run ./server
 
 test:
-	cd ./server && go test -cover ./...
+	cd ./cmd && go test -cover ./...
 
 build:
-	cd ./server && go build -o main main.go
+	cd ./cmd && go build -o main ./server
