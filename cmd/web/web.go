@@ -2,8 +2,8 @@ package web
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
 	"time"
 )
 
