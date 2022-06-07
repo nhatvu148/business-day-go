@@ -16,7 +16,7 @@ func TestIsBusinessDayHandler(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/business-day?date=%s", date), nil)
 		w := httptest.NewRecorder()
 
-		handlers.IsBusinessDayHandler(w, req)
+		handlers.BusinessDayHandler(w, req)
 		res := w.Result()
 		defer res.Body.Close()
 
