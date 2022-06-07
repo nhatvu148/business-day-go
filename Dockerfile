@@ -1,11 +1,11 @@
 # Build stage
-FROM golang:1.18.3-alpine3.16 AS builder
+FROM golang:alpine AS builder
 WORKDIR /app
 COPY . .
-RUN cd ./server && go build -o main main.go
+RUN cd ./server && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o main main.go
 
 # Run stage
-FROM alpine:3.16
+FROM scratch
 WORKDIR /app
 COPY --from=builder /app/server/main .
 
