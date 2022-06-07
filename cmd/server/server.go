@@ -14,7 +14,7 @@ import (
 func handleRequests() {
 	r := http.NewServeMux()
 
-	r.HandleFunc("/", handlers.HomeHandler)
+	r.HandleFunc("/", handlers.HomePageHandler)
 	r.HandleFunc("/business-day", handlers.BusinessDayHandler)
 
 	m := middlewares.RequestPathLogger(r)

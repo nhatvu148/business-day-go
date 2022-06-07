@@ -14,7 +14,7 @@ type BusinessDayResult struct {
 	Error  string `json:"error"`
 }
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
+func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the Home Page!")
 }
 
