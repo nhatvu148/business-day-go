@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	handlers "github.com/nhatvu148/business-day-go/handlers"
+	handlers "github.com/nhatvu148/business-day-go/cmd/handlers"
 )
 
 func TestIsBusinessDayHandler(t *testing.T) {

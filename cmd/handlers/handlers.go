@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	tools "github.com/nhatvu148/business-day-go/tools"
+	tools "github.com/nhatvu148/business-day-go/cmd/tools"
+	"github.com/nhatvu148/business-day-go/cmd/web"
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,7 +15,7 @@ type BusinessDayResult struct {
 }
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the Home Page!")
+	web.Render(w, "test.html")
 }
 
 func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {

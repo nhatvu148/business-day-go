@@ -2,11 +2,11 @@
 FROM golang:alpine AS builder
 WORKDIR /app
 COPY . .
-RUN cd ./cmd && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o main ./server
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o main ./cmd/server
 
 # Run stage
 FROM scratch
 WORKDIR /app
-COPY --from=builder /app/cmd/main .
+COPY --from=builder /app/main .
 
 CMD [ "/app/main" ]

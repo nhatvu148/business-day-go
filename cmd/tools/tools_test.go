@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	tools "github.com/nhatvu148/business-day-go/tools"
+	tools "github.com/nhatvu148/business-day-go/cmd/tools"
 	"github.com/rs/zerolog/log"
 )
 
