@@ -14,14 +14,11 @@ type BusinessDayResult struct {
 	Error  string `json:"error"`
 }
 
-func HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	log.Info().Msg("Endpoint Hit: homePage")
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome to the Home Page!")
 }
 
-func IsBusinessDayHandler(w http.ResponseWriter, r *http.Request) {
-	log.Info().Msg("Endpoint Hit: getIsBusinessDay")
-
+func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	dateString := query.Get("date")
 
@@ -35,7 +32,7 @@ func IsBusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 		jsonResp, err := json.Marshal(result)
 
 		if err != nil {
-			log.Error().Err(err).Msg("")
+			log.Error().Err(err).Msg("JSON Marshal Error")
 		}
 
 		w.WriteHeader(500)
@@ -47,9 +44,12 @@ func IsBusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := json.Marshal(result)
 
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Msg("JSON Marshal Error")
+
+		w.WriteHeader(500)
+		return
 	}
 
 	w.WriteHeader(200)
-	w.Write([]byte(string(res)))
+	w.Write(res)
 }

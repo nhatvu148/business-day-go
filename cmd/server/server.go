@@ -6,14 +6,19 @@ import (
 	"time"
 
 	handlers "github.com/nhatvu148/business-day-go/handlers"
+	"github.com/nhatvu148/business-day-go/middlewares"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func handleRequests() {
-	http.HandleFunc("/", handlers.HomePageHandler)
-	http.HandleFunc("/business-day", handlers.IsBusinessDayHandler)
-	log.Fatal().Err(http.ListenAndServe(":54528", nil)).Msg("")
+	r := http.NewServeMux()
+
+	r.HandleFunc("/", handlers.HomeHandler)
+	r.HandleFunc("/business-day", handlers.BusinessDayHandler)
+
+	m := middlewares.RequestPathLogger(r)
+	log.Fatal().Err(http.ListenAndServe(":54528", m)).Msg("")
 }
 
 func main() {
