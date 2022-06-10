@@ -15,7 +15,7 @@ type BusinessDayResult struct {
 }
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	web.Render(w, "test.html")
+	web.Render(w, "content.html")
 }
 
 func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,10 +32,11 @@ func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 		jsonResp, err := json.Marshal(result)
 
 		if err != nil {
-			log.Error().Err(err).Msg("JSON Marshal Error")
+			log.Error().Err(err).Msg("JSON marshal error")
 		}
 
-		w.WriteHeader(500)
+		log.Error().Msg(result.Error)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonResp)
 		return
 	}
@@ -44,12 +45,11 @@ func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := json.Marshal(result)
 
 	if err != nil {
-		log.Error().Err(err).Msg("JSON Marshal Error")
-
-		w.WriteHeader(500)
+		log.Error().Err(err).Msg("JSON marshal error")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

@@ -1,19 +1,27 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Input struct {
 	CurrentTime string
+	CatFact     string
+}
+
+type CatFact struct {
+	Fact   string
+	Length int
 }
 
 func Render(w http.ResponseWriter, t string) {
-	ip := Input{CurrentTime: time.Now().Format(time.RFC1123)}
-
 	partials := []string{
 		"./cmd/web/templates/base.html",
 		"./cmd/web/templates/header.html",
@@ -27,11 +35,38 @@ func Render(w http.ResponseWriter, t string) {
 
 	tmpl, err := template.ParseFiles(templateSlice...)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Error().Err(err).Msg("Template file parsing error")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	if err := tmpl.Execute(w, ip); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	catFact, err := getCatFact()
+	if err != nil {
+		log.Error().Err(err).Msg("getCatFact error")
 	}
+
+	ip := Input{CurrentTime: time.Now().Format(time.RFC1123), CatFact: catFact}
+	if err := tmpl.Execute(w, ip); err != nil {
+		log.Error().Err(err).Msg("Template execution error")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
+func getCatFact() (string, error) {
+	resp, err := http.Get("https://catfact.ninja/fact")
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var fact CatFact
+	json.Unmarshal(body, &fact)
+
+	return fact.Fact, nil
 }
