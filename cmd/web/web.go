@@ -40,9 +40,9 @@ func Render(w http.ResponseWriter, t string) {
 		return
 	}
 
-	catFact, err := getCatFact()
+	catFact, err := GetCatFact()
 	if err != nil {
-		log.Error().Err(err).Msg("getCatFact error")
+		log.Error().Err(err).Msg("GetCatFact error")
 	}
 
 	ip := Input{CurrentTime: time.Now().Format(time.RFC1123), CatFact: catFact}
@@ -52,7 +52,7 @@ func Render(w http.ResponseWriter, t string) {
 	}
 }
 
-func getCatFact() (string, error) {
+func GetCatFact() (string, error) {
 	resp, err := http.Get("https://catfact.ninja/fact")
 	if err != nil {
 		return "", err

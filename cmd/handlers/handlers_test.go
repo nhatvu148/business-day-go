@@ -6,10 +6,50 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path"
+	"regexp"
+	"runtime"
+	"strings"
 	"testing"
 
 	handlers "github.com/nhatvu148/business-day-go/cmd/handlers"
+	"github.com/rs/zerolog/log"
 )
+
+// Set the testing directory the same as project root
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "..", "..")
+	err := os.Chdir(dir)
+	if err != nil {
+		log.Error().Err(err).Msg("Change directory error")
+	}
+}
+
+func TestHomePageHandler(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	handlers.HomePageHandler(w, req)
+	res := w.Result()
+	defer res.Body.Close()
+	html, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Errorf("expected error to be nil got %v", err)
+	}
+
+	htmlString := string(html)
+
+	expectedString := "Welcome to Business Day API!"
+	if !strings.Contains(htmlString, expectedString) {
+		t.Errorf("html content does not contain the expected string: %v", expectedString)
+	}
+
+	re := regexp.MustCompile(`(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d\d [A-Za-z]{3} [\d]{4} \d\d:\d\d:\d\d UTC`)
+	if !re.MatchString(htmlString) {
+		t.Errorf("error displaying the current time")
+	}
+}
 
 func TestIsBusinessDayHandler(t *testing.T) {
 	checkBusinessDayResult := func(t testing.TB, date string, expected bool) {
@@ -51,6 +91,6 @@ func TestIsBusinessDayHandler(t *testing.T) {
 	})
 
 	t.Run("Test Case 4", func(t *testing.T) {
-		checkBusinessDayResult(t, "abcde", false)
+		checkBusinessDayResult(t, "2023-01-01", false)
 	})
 }
