@@ -64,19 +64,41 @@ func TestIsBusinessDayHandler(t *testing.T) {
 		}
 	}
 
-	t.Run("Test Case 1", func(t *testing.T) {
-		checkBusinessDayResult(t, "2022-06-01", true)
-	})
+	cases := []struct {
+		description string
+		date        string
+		expected    bool
+	}{
+		{
+			description: "Test Case 1",
+			date:        "2022-06-01",
+			expected:    true,
+		},
+		{
+			description: "Test Case 2",
+			date:        "2022-06-05",
+			expected:    false,
+		},
+		{
+			description: "Test Case 3",
+			date:        "2022-12-24",
+			expected:    false,
+		},
+		{
+			description: "Test Case 4",
+			date:        "2023-01-01",
+			expected:    false,
+		},
+		{
+			description: "Test Case 5",
+			date:        "2023-01-02",
+			expected:    false,
+		},
+	}
 
-	t.Run("Test Case 2", func(t *testing.T) {
-		checkBusinessDayResult(t, "2022-06-05", false)
-	})
-
-	t.Run("Test Case 3", func(t *testing.T) {
-		checkBusinessDayResult(t, "2022-12-24", false)
-	})
-
-	t.Run("Test Case 4", func(t *testing.T) {
-		checkBusinessDayResult(t, "2023-01-01", false)
-	})
+	for _, tt := range cases {
+		t.Run(tt.description, func(t *testing.T) {
+			checkBusinessDayResult(t, tt.date, tt.expected)
+		})
+	}
 }

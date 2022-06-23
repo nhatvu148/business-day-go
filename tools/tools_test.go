@@ -21,17 +21,43 @@ func TestIsBusinessDay(t *testing.T) {
 		}
 	}
 
-	t.Run("Test Case 1", func(t *testing.T) {
-		checkIsBusinessDayResult(t, "2022-06-01", true)
-	})
+	cases := []struct {
+		description string
+		date        string
+		expected    bool
+	}{
+		{
+			description: "Test Case 1",
+			date:        "2022-06-01",
+			expected:    true,
+		},
+		{
+			description: "Test Case 2",
+			date:        "2022-06-05",
+			expected:    false,
+		},
+		{
+			description: "Test Case 3",
+			date:        "2022-12-25",
+			expected:    false,
+		},
+		{
+			description: "Test Case 4",
+			date:        "2023-01-01",
+			expected:    false,
+		},
+		{
+			description: "Test Case 5",
+			date:        "2023-01-02",
+			expected:    false,
+		},
+	}
 
-	t.Run("Test Case 2", func(t *testing.T) {
-		checkIsBusinessDayResult(t, "2022-06-05", false)
-	})
-
-	t.Run("Test Case 3", func(t *testing.T) {
-		checkIsBusinessDayResult(t, "2022-12-25", false)
-	})
+	for _, tt := range cases {
+		t.Run(tt.description, func(t *testing.T) {
+			checkIsBusinessDayResult(t, tt.date, tt.expected)
+		})
+	}
 }
 
 func TestIsValidDate(t *testing.T) {
@@ -42,15 +68,41 @@ func TestIsValidDate(t *testing.T) {
 		}
 	}
 
-	t.Run("Test Case 1", func(t *testing.T) {
-		checkValidDateResult(t, "2022-06-01", true)
-	})
+	cases := []struct {
+		description string
+		date        string
+		expected    bool
+	}{
+		{
+			description: "Test Case 1",
+			date:        "2022-06-01",
+			expected:    true,
+		},
+		{
+			description: "Test Case 2",
+			date:        "2022-06-40",
+			expected:    false,
+		},
+		{
+			description: "Test Case 3",
+			date:        "123456abc",
+			expected:    false,
+		},
+		{
+			description: "Test Case 4",
+			date:        "2023-01-01",
+			expected:    true,
+		},
+		{
+			description: "Test Case 5",
+			date:        "2023-01-02",
+			expected:    true,
+		},
+	}
 
-	t.Run("Test Case 2", func(t *testing.T) {
-		checkValidDateResult(t, "2022-06-40", false)
-	})
-
-	t.Run("Test Case 3", func(t *testing.T) {
-		checkValidDateResult(t, "123456abc", false)
-	})
+	for _, tt := range cases {
+		t.Run(tt.description, func(t *testing.T) {
+			checkValidDateResult(t, tt.date, tt.expected)
+		})
+	}
 }

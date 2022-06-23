@@ -14,6 +14,14 @@ type BusinessDayResult struct {
 	Error  string `json:"error"`
 }
 
+type CustomError struct {
+	msg string
+}
+
+func (m *CustomError) Error() string {
+	return m.msg
+}
+
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	web.Render(w, "content.html")
 }
@@ -35,7 +43,7 @@ func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 			log.Err(err).Msg("JSON marshal error")
 		}
 
-		log.Error().Msg(result.Error)
+		log.Err(&CustomError{msg: result.Error}).Msg(result.Error)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonResp)
 		return
@@ -50,6 +58,5 @@ func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }

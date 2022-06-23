@@ -5,7 +5,7 @@ client:
 	go run ./cmd/server
 
 test:
-	go test -cover ./...
+	go test -cover -v ./...
 
 build:
 	go build -o main ./cmd/server
