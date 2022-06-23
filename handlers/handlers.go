@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/nhatvu148/business-day-go/middlewares"
 	tools "github.com/nhatvu148/business-day-go/tools"
 	"github.com/nhatvu148/business-day-go/web"
 	"github.com/rs/zerolog/log"
@@ -20,6 +21,16 @@ type CustomError struct {
 
 func (m *CustomError) Error() string {
 	return m.msg
+}
+
+func HandleRequests() {
+	r := http.NewServeMux()
+
+	r.HandleFunc("/", HomePageHandler)
+	r.HandleFunc("/business-day", BusinessDayHandler)
+
+	m := middlewares.RequestPathLogger(r)
+	log.Fatal().Err(http.ListenAndServe(":54528", m)).Msg("")
 }
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
