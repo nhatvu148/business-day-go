@@ -10,5 +10,6 @@ services:
     environment:
       - LOG_TYPE=USER_FRIENDLY
       - ROOT_PATH=/app
+      - PORT=:54528
     ports:
       - "54528:54528"

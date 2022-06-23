@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/nhatvu148/business-day-go/middlewares"
 	tools "github.com/nhatvu148/business-day-go/tools"
@@ -30,7 +31,7 @@ func HandleRequests() {
 	r.HandleFunc("/business-day", BusinessDayHandler)
 
 	m := middlewares.RequestPathLogger(r)
-	log.Fatal().Err(http.ListenAndServe(":54528", m)).Msg("")
+	log.Fatal().Err(http.ListenAndServe(os.Getenv("PORT"), m)).Msg("")
 }
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
