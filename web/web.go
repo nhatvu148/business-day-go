@@ -42,7 +42,7 @@ func Render(w http.ResponseWriter, t string) {
 		return
 	}
 
-	catFact, err := GetCatFact()
+	catFact, err := GetCatFact("https://catfact.ninja/fact")
 	if err != nil {
 		log.Err(err).Msg("GetCatFact error")
 	}
@@ -54,8 +54,8 @@ func Render(w http.ResponseWriter, t string) {
 	}
 }
 
-func GetCatFact() (string, error) {
-	resp, err := http.Get("https://catfact.ninja/fact")
+func GetCatFact(URL string) (string, error) {
+	resp, err := http.Get(URL)
 	if err != nil {
 		return "", err
 	}
