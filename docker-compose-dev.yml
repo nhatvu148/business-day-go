@@ -7,6 +7,9 @@ services:
     build:
       dockerfile: Dockerfile.dev
       context: .
+    environment:
+      - LOG_TYPE=USER_FRIENDLY
+      - ROOT_PATH=/app
     ports:
       - "54528:54528"
     volumes:

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	tools "github.com/nhatvu148/business-day-go/cmd/tools"
+	tools "github.com/nhatvu148/business-day-go/tools"
 	"github.com/rs/zerolog/log"
 )
 
@@ -12,7 +12,7 @@ func TestIsBusinessDay(t *testing.T) {
 	checkIsBusinessDayResult := func(t testing.TB, dateString string, expected bool) {
 		date, err := time.Parse("2006-01-02", dateString)
 		if err != nil {
-			log.Error().Err(err).Msg("")
+			log.Err(err).Msg("")
 		}
 		got := tools.IsBusinessDay(date)
 

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	tools "github.com/nhatvu148/business-day-go/cmd/tools"
-	"github.com/nhatvu148/business-day-go/cmd/web"
+	tools "github.com/nhatvu148/business-day-go/tools"
+	"github.com/nhatvu148/business-day-go/web"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,7 +32,7 @@ func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 		jsonResp, err := json.Marshal(result)
 
 		if err != nil {
-			log.Error().Err(err).Msg("JSON marshal error")
+			log.Err(err).Msg("JSON marshal error")
 		}
 
 		log.Error().Msg(result.Error)
@@ -45,7 +45,7 @@ func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := json.Marshal(result)
 
 	if err != nil {
-		log.Error().Err(err).Msg("JSON marshal error")
+		log.Err(err).Msg("JSON marshal error")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

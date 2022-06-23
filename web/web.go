@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -22,32 +23,33 @@ type CatFact struct {
 }
 
 func Render(w http.ResponseWriter, t string) {
+	rootPath := os.Getenv("ROOT_PATH")
 	partials := []string{
-		"./cmd/web/templates/base.html",
-		"./cmd/web/templates/header.html",
-		"./cmd/web/templates/footer.html",
+		fmt.Sprintf("%s/web/templates/base.html", rootPath),
+		fmt.Sprintf("%s/web/templates/header.html", rootPath),
+		fmt.Sprintf("%s/web/templates/footer.html", rootPath),
 	}
 
 	var templateSlice []string
-	templateSlice = append(templateSlice, fmt.Sprintf("./cmd/web/templates/%s", t))
+	templateSlice = append(templateSlice, fmt.Sprintf("%s/web/templates/%s", rootPath, t))
 
 	templateSlice = append(templateSlice, partials...)
 
 	tmpl, err := template.ParseFiles(templateSlice...)
 	if err != nil {
-		log.Error().Err(err).Msg("Template file parsing error")
+		log.Err(err).Msg("Template file parsing error")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	catFact, err := GetCatFact()
 	if err != nil {
-		log.Error().Err(err).Msg("GetCatFact error")
+		log.Err(err).Msg("GetCatFact error")
 	}
 
 	ip := Input{CurrentTime: time.Now().Format(time.RFC1123), CatFact: catFact}
 	if err := tmpl.Execute(w, ip); err != nil {
-		log.Error().Err(err).Msg("Template execution error")
+		log.Err(err).Msg("Template execution error")
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

@@ -6,26 +6,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path"
 	"regexp"
-	"runtime"
 	"strings"
 	"testing"
 
-	handlers "github.com/nhatvu148/business-day-go/cmd/handlers"
-	"github.com/rs/zerolog/log"
+	handlers "github.com/nhatvu148/business-day-go/handlers"
 )
-
-// Set the testing directory the same as project root
-func init() {
-	_, filename, _, _ := runtime.Caller(0)
-	dir := path.Join(path.Dir(filename), "..", "..")
-	err := os.Chdir(dir)
-	if err != nil {
-		log.Error().Err(err).Msg("Change directory error")
-	}
-}
 
 func TestHomePageHandler(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)

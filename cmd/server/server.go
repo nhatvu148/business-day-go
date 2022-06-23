@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	handlers "github.com/nhatvu148/business-day-go/cmd/handlers"
-	"github.com/nhatvu148/business-day-go/cmd/middlewares"
+	handlers "github.com/nhatvu148/business-day-go/handlers"
+	"github.com/nhatvu148/business-day-go/middlewares"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

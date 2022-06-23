@@ -13,7 +13,7 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o main ./cm
 FROM scratch
 WORKDIR /app
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app/cmd/web/templates/ ./cmd/web/templates/
+COPY --from=builder /app/web/templates/ ./web/templates/
 COPY --from=builder /app/main .
 
 CMD [ "/app/main" ]
