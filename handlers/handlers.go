@@ -25,6 +25,8 @@ func (m *CustomError) Error() string {
 }
 
 func HandleRequests() {
+	tools.SetLogger()
+
 	r := http.NewServeMux()
 
 	r.HandleFunc("/", HomePageHandler)

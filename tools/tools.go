@@ -1,9 +1,12 @@
 package tools
 
 import (
+	"os"
 	"time"
 
 	holiday "github.com/holiday-jp/holiday_jp-go"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func IsValidDate(dateString string) (bool, time.Time) {
@@ -16,4 +19,11 @@ func IsValidDate(dateString string) (bool, time.Time) {
 
 func IsBusinessDay(date time.Time) bool {
 	return !(date.Weekday() == time.Saturday || date.Weekday() == time.Sunday || holiday.IsHoliday(date))
+}
+
+func SetLogger() {
+	logType := os.Getenv("LOG_TYPE")
+	if logType == "USER_FRIENDLY" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
+	}
 }
