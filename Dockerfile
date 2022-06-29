@@ -1,5 +1,14 @@
-# Build stage
-FROM golang:alpine AS builder
+# Build node
+FROM node:16-alpine AS node-builder
+WORKDIR /app
+COPY client/package.json client/yarn.lock ./
+RUN yarn install --frozen-lockfile
+COPY client/ .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN yarn run export
+
+# Build go
+FROM golang:alpine AS go-builder
 WORKDIR /app
 COPY . .
 RUN apk update \
@@ -12,8 +21,9 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o main ./cm
 # Run stage
 FROM scratch
 WORKDIR /app
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app/web/templates/ ./web/templates/
-COPY --from=builder /app/main .
+COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=go-builder /app/web/templates/ ./web/templates/
+COPY --from=go-builder /app/main .
+COPY --from=node-builder /app/dist ./client/dist
 
 CMD [ "/app/main" ]

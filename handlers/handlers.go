@@ -30,21 +30,24 @@ func HandleRequests() {
 
 	r := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./client/dist"))
-	fileMatcher := regexp.MustCompile(`\.[a-zA-Z]*$`)
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if !fileMatcher.MatchString(r.URL.Path) {
-			http.ServeFile(w, r, "./client/dist/index.html")
-		} else {
-			fileServer.ServeHTTP(w, r)
-		}
-	})
+	r.HandleFunc("/", StaticPageHandler)
 	// r.HandleFunc("/", HomePageHandler)
 
 	r.HandleFunc("/business-day", BusinessDayHandler)
 
 	m := middlewares.RequestPathLogger(r)
 	log.Fatal().Err(http.ListenAndServe(os.Getenv("PORT"), m)).Msg("")
+}
+
+func StaticPageHandler(w http.ResponseWriter, r *http.Request) {
+	fileServer := http.FileServer(http.Dir("./client/dist"))
+	fileMatcher := regexp.MustCompile(`\.[a-zA-Z]*$`)
+
+	if !fileMatcher.MatchString(r.URL.Path) {
+		http.ServeFile(w, r, "./client/dist/index.html")
+	} else {
+		fileServer.ServeHTTP(w, r)
+	}
 }
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
