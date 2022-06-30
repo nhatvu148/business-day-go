@@ -6,9 +6,9 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/nhatvu148/business-day-go/tools"
 	"github.com/rs/zerolog/log"
 )
 
@@ -23,15 +23,14 @@ type CatFact struct {
 }
 
 func Render(w http.ResponseWriter, t string) {
-	rootPath := os.Getenv("ROOT_PATH")
 	partials := []string{
-		fmt.Sprintf("%s/web/templates/base.html", rootPath),
-		fmt.Sprintf("%s/web/templates/header.html", rootPath),
-		fmt.Sprintf("%s/web/templates/footer.html", rootPath),
+		fmt.Sprintf("%s/web/templates/base.html", tools.RootPath),
+		fmt.Sprintf("%s/web/templates/header.html", tools.RootPath),
+		fmt.Sprintf("%s/web/templates/footer.html", tools.RootPath),
 	}
 
 	var templateSlice []string
-	templateSlice = append(templateSlice, fmt.Sprintf("%s/web/templates/%s", rootPath, t))
+	templateSlice = append(templateSlice, fmt.Sprintf("%s/web/templates/%s", tools.RootPath, t))
 
 	templateSlice = append(templateSlice, partials...)
 

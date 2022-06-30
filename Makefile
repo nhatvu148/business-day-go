@@ -9,3 +9,8 @@ test:
 
 build:
 	go build -o main ./cmd/server
+
+build-client:
+	cd client; \
+	yarn install; \
+	NEXT_TELEMETRY_DISABLED=1 yarn run export

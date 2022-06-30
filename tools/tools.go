@@ -9,6 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var RootPath = os.Getenv("ROOT_PATH")
+
 func IsValidDate(dateString string) (bool, time.Time) {
 	date, err := time.Parse("2006-01-02", dateString)
 	if err != nil {

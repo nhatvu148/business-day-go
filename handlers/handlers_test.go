@@ -26,6 +26,25 @@ func TestHomePageHandler(t *testing.T) {
 
 	htmlString := string(html)
 
+	expectedString := `Welcome to <a href="https://nextjs.org">Next.js!`
+	if !strings.Contains(htmlString, expectedString) {
+		t.Errorf("html content does not contain the expected string: %v", expectedString)
+	}
+}
+
+func TestCatFactPageHandler(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/catfact", nil)
+	w := httptest.NewRecorder()
+	handlers.CatFactPageHandler(w, req)
+	res := w.Result()
+	defer res.Body.Close()
+	html, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Errorf("expected error to be nil got %v", err)
+	}
+
+	htmlString := string(html)
+
 	expectedString := "Welcome to Business Day API!"
 	if !strings.Contains(htmlString, expectedString) {
 		t.Errorf("html content does not contain the expected string: %v", expectedString)

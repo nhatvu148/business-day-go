@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -30,8 +31,8 @@ func HandleRequests() {
 
 	r := http.NewServeMux()
 
-	r.HandleFunc("/", StaticPageHandler)
-	// r.HandleFunc("/", HomePageHandler)
+	r.HandleFunc("/", HomePageHandler)
+	r.HandleFunc("/catfact", CatFactPageHandler)
 
 	r.HandleFunc("/business-day", BusinessDayHandler)
 
@@ -39,18 +40,21 @@ func HandleRequests() {
 	log.Fatal().Err(http.ListenAndServe(os.Getenv("PORT"), m)).Msg("")
 }
 
-func StaticPageHandler(w http.ResponseWriter, r *http.Request) {
-	fileServer := http.FileServer(http.Dir("./client/dist"))
+func HomePageHandler(w http.ResponseWriter, r *http.Request) {
+	distPath := fmt.Sprintf("%s/client/dist", tools.RootPath)
+	htmlPath := fmt.Sprintf("%s/client/dist/index.html", tools.RootPath)
+
+	fileServer := http.FileServer(http.Dir(distPath))
 	fileMatcher := regexp.MustCompile(`\.[a-zA-Z]*$`)
 
 	if !fileMatcher.MatchString(r.URL.Path) {
-		http.ServeFile(w, r, "./client/dist/index.html")
+		http.ServeFile(w, r, htmlPath)
 	} else {
 		fileServer.ServeHTTP(w, r)
 	}
 }
 
-func HomePageHandler(w http.ResponseWriter, r *http.Request) {
+func CatFactPageHandler(w http.ResponseWriter, r *http.Request) {
 	web.Render(w, "content.html")
 }
 
