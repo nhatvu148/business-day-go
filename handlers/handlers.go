@@ -33,7 +33,6 @@ func HandleRequests() {
 
 	r.HandleFunc("/", HomePageHandler)
 	r.HandleFunc("/catfact", CatFactPageHandler)
-
 	r.HandleFunc("/business-day", BusinessDayHandler)
 
 	m := middlewares.RequestPathLogger(r)
