@@ -30,6 +30,8 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Cancel";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { pink } from "@mui/material/colors";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
@@ -60,9 +62,16 @@ const Home: NextPage = () => {
   const [customHolidays, setCustomHolidays] = useState(initialCustomHolidays);
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState<moment.Moment | null>(null);
+  const [updatedCategory, setUpdatedCategory] = useState("");
+  const [newDate, setNewDate] = useState<moment.Moment | null>(null);
+  const [newUpdatedDate, setNewUpdatedDate] = useState<moment.Moment | null>(
+    null
+  );
   const [isError, setIsError] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [updatedDate, setUpdatedDate] = useState("");
 
   useEffect(() => {
     if (isError) {
@@ -72,8 +81,35 @@ const Home: NextPage = () => {
     }
   }, [isError]);
 
-  const handleChange = (newValue: moment.Moment | null) => {
-    setDate(newValue);
+  useEffect(() => {
+    if (isSuccess) {
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 2000);
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (updatedDate !== "") {
+      const _newUpdatedDate = moment(updatedDate);
+      const _updatedCategory = customHolidays.find(
+        (day) => day.date === updatedDate
+      )?.category as string;
+      setNewUpdatedDate(_newUpdatedDate);
+      setUpdatedCategory(_updatedCategory);
+    }
+  }, [updatedDate]);
+
+  const handleNewDateChange = (newValue: moment.Moment | null) => {
+    if (newValue !== null) {
+      setNewDate(newValue);
+    }
+  };
+
+  const handleUpdatedDateChange = (newValue: moment.Moment | null) => {
+    if (newValue !== null) {
+      setNewUpdatedDate(newValue);
+    }
   };
 
   const handleClickOpen = () => {
@@ -95,28 +131,71 @@ const Home: NextPage = () => {
   };
 
   const handleAdd = () => {
-    if (date === null || category === "") {
+    if (newDate === null || category === "") {
       setErrorMessage("Date or Category cannot be empty");
       setIsError(true);
       return;
     }
-
-    const newDate = moment(date).format("YYYY/MM/DD");
-    if (customHolidays.some((holiday) => holiday.date === newDate)) {
-      setErrorMessage(`Date ${newDate} already exists`);
+    const _newDate = moment(newDate).format("YYYY/MM/DD");
+    if (customHolidays.some((holiday) => holiday.date === _newDate)) {
+      setErrorMessage(`Date ${_newDate} already exists`);
       setIsError(true);
       return;
     }
     setCustomHolidays((prev) => [
       ...prev,
-      { date: moment(date).format("YYYY/MM/DD"), category },
+      { date: moment(newDate).format("YYYY/MM/DD"), category },
     ]);
-    setDate(null);
+    setNewDate(null);
     // setCategory("");
   };
 
   const handleChangeCategory = (event: SelectChangeEvent) => {
     setCategory(event.target.value);
+  };
+
+  const handleChangeUpdatedCategory = (event: SelectChangeEvent) => {
+    setUpdatedCategory(event.target.value);
+  };
+
+  const updateHoliday = () => {
+    if (newUpdatedDate === null || updatedCategory === "") {
+      setErrorMessage("Date or Category cannot be empty");
+      setIsError(true);
+      return;
+    }
+    const _newDate = moment(newUpdatedDate).format("YYYY/MM/DD");
+    if (
+      customHolidays
+        .filter((holiday) => holiday.date !== updatedDate)
+        .some((holiday) => holiday.date === _newDate)
+    ) {
+      setErrorMessage(`Date ${_newDate} already exists`);
+      setIsError(true);
+      return;
+    }
+    setCustomHolidays((prev) =>
+      prev.map((holiday) => {
+        if (holiday.date === updatedDate) {
+          return {
+            date: newUpdatedDate.format("YYYY/MM/DD"),
+            category: updatedCategory,
+          };
+        } else {
+          return holiday;
+        }
+      })
+    );
+
+    cancelEdit();
+    setSuccessMessage("Saved");
+    setIsSuccess(true);
+  };
+
+  const cancelEdit = () => {
+    setNewUpdatedDate(null);
+    setUpdatedCategory("");
+    setUpdatedDate("");
   };
 
   return (
@@ -135,6 +214,21 @@ const Home: NextPage = () => {
           }}
         >
           {errorMessage}
+        </Alert>
+      )}
+      {isSuccess && (
+        <Alert
+          sx={{
+            position: "fixed",
+            left: "700px",
+            zIndex: 2,
+            marginTop: "-40px",
+          }}
+          onClose={() => {
+            setIsSuccess(false);
+          }}
+        >
+          {successMessage}
         </Alert>
       )}
       <div
@@ -177,6 +271,67 @@ const Home: NextPage = () => {
                       moment(a.date).valueOf() - moment(b.date).valueOf()
                   )
                   .map((day, id: number) => {
+                    if (day.date === updatedDate) {
+                      return (
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Avatar sx={{ mr: 3, mt: 2, mb: 2 }}>
+                            <CalendarMonthIcon color="primary" />
+                          </Avatar>
+                          <DesktopDatePicker
+                            label="Date"
+                            inputFormat="YYYY-MM-DD"
+                            value={newUpdatedDate}
+                            onChange={handleUpdatedDateChange}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                          <FormControl
+                            fullWidth
+                            sx={{ width: "34%", ml: 2, mr: 2 }}
+                          >
+                            <InputLabel id="demo-simple-select-label">
+                              Category
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={updatedCategory}
+                              label="Category"
+                              onChange={handleChangeUpdatedCategory}
+                            >
+                              <MenuItem value={"Holiday"}>Holiday</MenuItem>
+                              <MenuItem value={"Business day"}>
+                                Business day
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                          <Tooltip title={"Save"}>
+                            <IconButton
+                              aria-label="save"
+                              onClick={() => {
+                                updateHoliday();
+                              }}
+                            >
+                              <SaveIcon color="primary" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={"Cancel"}>
+                            <IconButton
+                              aria-label="cancel"
+                              onClick={() => {
+                                cancelEdit();
+                              }}
+                            >
+                              <CancelIcon sx={{ color: pink[500] }} />
+                            </IconButton>
+                          </Tooltip>
+                        </div>
+                      );
+                    }
                     return (
                       <ListItem
                         key={day.date}
@@ -187,6 +342,9 @@ const Home: NextPage = () => {
                                 edge="end"
                                 aria-label="edit"
                                 sx={{ mr: 0.1 }}
+                                onClick={() => {
+                                  setUpdatedDate(day.date);
+                                }}
                               >
                                 <EditIcon color="success" />
                               </IconButton>
@@ -196,7 +354,6 @@ const Home: NextPage = () => {
                                 edge="end"
                                 aria-label="delete"
                                 onClick={() => {
-                                  console.log("Deleting key: ", day.date);
                                   setCustomHolidays((prev) =>
                                     prev.filter(
                                       (holiday) => holiday.date !== day.date
@@ -266,8 +423,8 @@ const Home: NextPage = () => {
               <DesktopDatePicker
                 label="Date"
                 inputFormat="YYYY-MM-DD"
-                value={date}
-                onChange={handleChange}
+                value={newDate}
+                onChange={handleNewDateChange}
                 renderInput={(params) => <TextField {...params} />}
               />
               <FormControl fullWidth sx={{ width: "50%", ml: 2 }}>
