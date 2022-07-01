@@ -44,11 +44,11 @@ const Demo = styled("div")(({ theme }) => ({
 }));
 
 const initialCustomHolidays = [
-  { date: "2022/02/02", category: "Holiday" },
-  { date: "2022/03/03", category: "Business day" },
-  { date: "2022/04/04", category: "Holiday" },
-  { date: "2022/05/05", category: "Business day" },
-  { date: "2022/06/06", category: "Holiday" },
+  { date: "2022-02-02", category: "Holiday" },
+  { date: "2022-03-03", category: "Business day" },
+  { date: "2022-04-04", category: "Holiday" },
+  { date: "2022-05-05", category: "Business day" },
+  { date: "2022-06-06", category: "Holiday" },
 ];
 
 function generate(element: React.ReactElement) {
@@ -137,7 +137,7 @@ const Home: NextPage = () => {
       setIsError(true);
       return;
     }
-    const _newDate = moment(newDate).format("YYYY/MM/DD");
+    const _newDate = moment(newDate).format("YYYY-MM-DD");
     if (customHolidays.some((holiday) => holiday.date === _newDate)) {
       setErrorMessage(`Date ${_newDate} already exists`);
       setIsError(true);
@@ -145,7 +145,7 @@ const Home: NextPage = () => {
     }
     setCustomHolidays((prev) => [
       ...prev,
-      { date: moment(newDate).format("YYYY/MM/DD"), category },
+      { date: moment(newDate).format("YYYY-MM-DD"), category },
     ]);
     setNewDate(null);
     // setCategory("");
@@ -165,7 +165,7 @@ const Home: NextPage = () => {
       setIsError(true);
       return;
     }
-    const _newDate = moment(newUpdatedDate).format("YYYY/MM/DD");
+    const _newDate = moment(newUpdatedDate).format("YYYY-MM-DD");
     if (
       customHolidays
         .filter((holiday) => holiday.date !== updatedDate)
@@ -179,7 +179,7 @@ const Home: NextPage = () => {
       prev.map((holiday) => {
         if (holiday.date === updatedDate) {
           return {
-            date: newUpdatedDate.format("YYYY/MM/DD"),
+            date: newUpdatedDate.format("YYYY-MM-DD"),
             category: updatedCategory,
           };
         } else {
@@ -293,63 +293,68 @@ const Home: NextPage = () => {
                   .map((day, id: number) => {
                     if (day.date === updatedDate) {
                       return (
-                        <div
-                          style={{
-                            marginTop: 5,
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Avatar sx={{ mr: 3, mt: 2, mb: 2 }}>
-                            <CalendarMonthIcon color="primary" />
-                          </Avatar>
-                          <DesktopDatePicker
-                            label="Date"
-                            inputFormat="YYYY-MM-DD"
-                            value={newUpdatedDate}
-                            onChange={handleUpdatedDateChange}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                          <FormControl
-                            fullWidth
-                            sx={{ width: "34%", ml: 2, mr: 2 }}
+                        <div>
+                          <div
+                            style={{
+                              marginTop: 5,
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
                           >
-                            <InputLabel id="demo-simple-select-label">
-                              Category
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={updatedCategory}
-                              label="Category"
-                              onChange={handleChangeUpdatedCategory}
+                            <Avatar sx={{ mr: 3, mt: 2, mb: 2 }}>
+                              <CalendarMonthIcon color="primary" />
+                            </Avatar>
+                            <DesktopDatePicker
+                              label="Date"
+                              inputFormat="YYYY-MM-DD"
+                              value={newUpdatedDate}
+                              onChange={handleUpdatedDateChange}
+                              renderInput={(params) => (
+                                <TextField {...params} />
+                              )}
+                            />
+                            <FormControl
+                              fullWidth
+                              sx={{ width: "34%", ml: 2, mr: 2 }}
                             >
-                              <MenuItem value={"Holiday"}>Holiday</MenuItem>
-                              <MenuItem value={"Business day"}>
-                                Business day
-                              </MenuItem>
-                            </Select>
-                          </FormControl>
-                          <Tooltip title={"Save"}>
-                            <IconButton
-                              aria-label="save"
-                              onClick={() => {
-                                updateHoliday();
-                              }}
-                            >
-                              <SaveIcon color="primary" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title={"Cancel"}>
-                            <IconButton
-                              aria-label="cancel"
-                              onClick={() => {
-                                cancelEdit();
-                              }}
-                            >
-                              <CancelIcon sx={{ color: pink[500] }} />
-                            </IconButton>
-                          </Tooltip>
+                              <InputLabel id="demo-simple-select-label">
+                                Category
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={updatedCategory}
+                                label="Category"
+                                onChange={handleChangeUpdatedCategory}
+                              >
+                                <MenuItem value={"Holiday"}>Holiday</MenuItem>
+                                <MenuItem value={"Business day"}>
+                                  Business day
+                                </MenuItem>
+                              </Select>
+                            </FormControl>
+                            <Tooltip title={"Save"}>
+                              <IconButton
+                                aria-label="save"
+                                onClick={() => {
+                                  updateHoliday();
+                                }}
+                              >
+                                <SaveIcon color="primary" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title={"Cancel"}>
+                              <IconButton
+                                aria-label="cancel"
+                                onClick={() => {
+                                  cancelEdit();
+                                }}
+                              >
+                                <CancelIcon sx={{ color: pink[500] }} />
+                              </IconButton>
+                            </Tooltip>
+                          </div>
+                          <Divider />
                         </div>
                       );
                     }
