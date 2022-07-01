@@ -171,41 +171,57 @@ const Home: NextPage = () => {
 
             <Demo>
               <List dense={false}>
-                {customHolidays.map((day, id: number) => {
-                  return (
-                    <ListItem
-                      key={id}
-                      secondaryAction={
-                        <>
-                          <Tooltip title="Edit">
-                            <IconButton
-                              edge="end"
-                              aria-label="edit"
-                              sx={{ mr: 0.1 }}
-                            >
-                              <EditIcon color="success" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton edge="end" aria-label="delete">
-                              <DeleteIcon sx={{ color: pink[500] }} />
-                            </IconButton>
-                          </Tooltip>
-                        </>
-                      }
-                    >
-                      <ListItemAvatar>
-                        <Avatar>
-                          <CalendarMonthIcon color="primary" />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={day.date}
-                        secondary={day.category}
-                      />
-                    </ListItem>
-                  );
-                })}
+                {customHolidays
+                  .sort(
+                    (a, b) =>
+                      moment(a.date).valueOf() - moment(b.date).valueOf()
+                  )
+                  .map((day, id: number) => {
+                    return (
+                      <ListItem
+                        key={day.date}
+                        secondaryAction={
+                          <>
+                            <Tooltip title="Edit">
+                              <IconButton
+                                edge="end"
+                                aria-label="edit"
+                                sx={{ mr: 0.1 }}
+                              >
+                                <EditIcon color="success" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                onClick={() => {
+                                  console.log("Deleting key: ", day.date);
+                                  setCustomHolidays((prev) =>
+                                    prev.filter(
+                                      (holiday) => holiday.date !== day.date
+                                    )
+                                  );
+                                }}
+                              >
+                                <DeleteIcon sx={{ color: pink[500] }} />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        }
+                      >
+                        <ListItemAvatar>
+                          <Avatar>
+                            <CalendarMonthIcon color="primary" />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={day.date}
+                          secondary={day.category}
+                        />
+                      </ListItem>
+                    );
+                  })}
               </List>
             </Demo>
           </Card>
@@ -218,7 +234,6 @@ const Home: NextPage = () => {
           // hideBackdrop
           disableScrollLock
           disableEnforceFocus
-          disableBackdropClick={false}
           // @ts-ignore
           PaperComponent={OpenDialogDragger}
           sx={{ pointerEvents: "auto" }}

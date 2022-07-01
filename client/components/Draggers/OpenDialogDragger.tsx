@@ -28,15 +28,17 @@ const OpenDialogDragger: FC<IProps> = ({
   setDragStopDialog,
   ...props
 }) => {
+  const nodeRef = React.useRef(null);
   return (
     <Draggable
+      nodeRef={nodeRef}
       handle="#alert-dialog-title"
       position={{ x: stopDragDialogAt.x, y: stopDragDialogAt.y }}
       onStop={(e, data) => {
         setDragStopDialog({ x: data.x, y: data.y });
       }}
     >
-      <Paper {...props} />
+      <Paper ref={nodeRef} {...props} />
     </Draggable>
   );
 };
