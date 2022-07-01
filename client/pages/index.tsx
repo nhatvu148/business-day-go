@@ -8,6 +8,7 @@ import {
   styled,
   Box,
   Card,
+  Tooltip
 } from "@mui/material";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -16,19 +17,22 @@ import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import Avatar from "@mui/material/Avatar";
-import AddIcon from "@mui/icons-material/Add";
+import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { pink } from "@mui/material/colors";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
 const initialCustomHolidays = [
-  "2022/02/02",
-  "2022/03/03",
-  "2022/04/04",
-  "2022/05/05",
+  { date: "2022/02/02", category: "Holiday" },
+  { date: "2022/03/03", category: "Business day" },
+  { date: "2022/04/04", category: "Holiday" },
+  { date: "2022/05/05", category: "Business day" },
+  { date: "2022/06/06", category: "Holiday" },
 ];
 
 function generate(element: React.ReactElement) {
@@ -61,38 +65,53 @@ const Home: NextPage = () => {
             >
               Custom Holidays
             </Typography>
-            <IconButton
-              edge="end"
-              aria-label="add"
-              onClick={() => {
-                setCustomHolidays((prev) => [...prev, "2022/05/06"]);
-              }}
-            >
-              <AddIcon />
-            </IconButton>
+            <Tooltip title="Add Custom Holiday">
+              <IconButton
+                edge="end"
+                aria-label="add"
+                onClick={() => {
+                  setCustomHolidays((prev) => [
+                    ...prev,
+                    { date: "2022/05/06", category: "Holiday" },
+                  ]);
+                }}
+              >
+                <AddBoxIcon color="primary" />
+              </IconButton>
+            </Tooltip>
           </div>
 
           <Demo>
             <List dense={false}>
-              {customHolidays.map((day: string, id: number) => {
+              {customHolidays.map((day, id: number) => {
                 return (
                   <ListItem
                     key={id}
                     secondaryAction={
-                      <IconButton edge="end" aria-label="delete">
-                        <DeleteIcon />
-                      </IconButton>
+                      <>
+                        <Tooltip title="Edit">
+                          <IconButton
+                            edge="end"
+                            aria-label="edit"
+                            sx={{ mr: 0.1 }}
+                          >
+                            <EditIcon color="success" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton edge="end" aria-label="delete">
+                            <DeleteIcon sx={{ color: pink[500] }} />
+                          </IconButton>
+                        </Tooltip>
+                      </>
                     }
                   >
                     <ListItemAvatar>
                       <Avatar>
-                        <CalendarMonthIcon />
+                        <CalendarMonthIcon color="primary" />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText
-                      primary={day}
-                      secondary={true ? "Secondary text" : null}
-                    />
+                    <ListItemText primary={day.date} secondary={day.category} />
                   </ListItem>
                 );
               })}
