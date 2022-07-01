@@ -78,7 +78,7 @@ const Home: NextPage = () => {
     if (isError) {
       setTimeout(() => {
         setIsError(false);
-      }, 2000);
+      }, 3000);
     }
   }, [isError]);
 
@@ -86,7 +86,7 @@ const Home: NextPage = () => {
     if (isSuccess) {
       setTimeout(() => {
         setIsSuccess(false);
-      }, 2000);
+      }, 3000);
     }
   }, [isSuccess]);
 
@@ -137,7 +137,7 @@ const Home: NextPage = () => {
       setIsError(true);
       return;
     }
-    const _newDate = moment(newDate).format("YYYY-MM-DD");
+    const _newDate = newDate.format("YYYY-MM-DD");
     if (customHolidays.some((holiday) => holiday.date === _newDate)) {
       setErrorMessage(`Date ${_newDate} already exists`);
       setIsError(true);
@@ -145,10 +145,12 @@ const Home: NextPage = () => {
     }
     setCustomHolidays((prev) => [
       ...prev,
-      { date: moment(newDate).format("YYYY-MM-DD"), category },
+      { date: newDate.format("YYYY-MM-DD"), category },
     ]);
     setNewDate(null);
-    // setCategory("");
+
+    setSuccessMessage(`Added ${_newDate}`);
+    setIsSuccess(true);
   };
 
   const handleChangeCategory = (event: SelectChangeEvent) => {
@@ -165,7 +167,7 @@ const Home: NextPage = () => {
       setIsError(true);
       return;
     }
-    const _newDate = moment(newUpdatedDate).format("YYYY-MM-DD");
+    const _newDate = newUpdatedDate.format("YYYY-MM-DD");
     if (
       customHolidays
         .filter((holiday) => holiday.date !== updatedDate)
@@ -189,7 +191,7 @@ const Home: NextPage = () => {
     );
 
     cancelEdit();
-    setSuccessMessage("Saved");
+    setSuccessMessage(`Saved ${_newDate}`);
     setIsSuccess(true);
   };
 
