@@ -19,7 +19,7 @@ import {
   FormControl,
   InputLabel,
   Alert,
-  AlertTitle,
+  Divider,
 } from "@mui/material";
 import type { NextPage } from "next";
 import ListItem from "@mui/material/ListItem";
@@ -36,6 +36,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { pink } from "@mui/material/colors";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import moment from "moment";
+import Image from "next/image";
 import OpenDialogDragger from "components/Draggers/OpenDialogDragger";
 
 const Demo = styled("div")(({ theme }) => ({
@@ -98,7 +99,7 @@ const Home: NextPage = () => {
       setNewUpdatedDate(_newUpdatedDate);
       setUpdatedCategory(_updatedCategory);
     }
-  }, [updatedDate]);
+  }, [updatedDate, customHolidays]);
 
   const handleNewDateChange = (newValue: moment.Moment | null) => {
     if (newValue !== null) {
@@ -265,6 +266,25 @@ const Home: NextPage = () => {
 
             <Demo>
               <List dense={false}>
+                {customHolidays.length === 0 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ position: "absolute", top: 20 }}>No data</div>
+                    <Image
+                      src="/empty.svg"
+                      alt="No data"
+                      width={100}
+                      height={80}
+                    />
+                    <Divider />
+                  </div>
+                )}
+
                 {customHolidays
                   .sort(
                     (a, b) =>
@@ -275,6 +295,7 @@ const Home: NextPage = () => {
                       return (
                         <div
                           style={{
+                            marginTop: 5,
                             display: "flex",
                             justifyContent: "center",
                           }}
@@ -333,50 +354,53 @@ const Home: NextPage = () => {
                       );
                     }
                     return (
-                      <ListItem
-                        key={day.date}
-                        secondaryAction={
-                          <>
-                            <Tooltip title="Edit">
-                              <IconButton
-                                edge="end"
-                                aria-label="edit"
-                                sx={{ mr: 0.1 }}
-                                onClick={() => {
-                                  setUpdatedDate(day.date);
-                                }}
-                              >
-                                <EditIcon color="success" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton
-                                edge="end"
-                                aria-label="delete"
-                                onClick={() => {
-                                  setCustomHolidays((prev) =>
-                                    prev.filter(
-                                      (holiday) => holiday.date !== day.date
-                                    )
-                                  );
-                                }}
-                              >
-                                <DeleteIcon sx={{ color: pink[500] }} />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        }
-                      >
-                        <ListItemAvatar>
-                          <Avatar>
-                            <CalendarMonthIcon color="primary" />
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={day.date}
-                          secondary={day.category}
-                        />
-                      </ListItem>
+                      <>
+                        <ListItem
+                          key={day.date}
+                          secondaryAction={
+                            <>
+                              <Tooltip title="Edit">
+                                <IconButton
+                                  edge="end"
+                                  aria-label="edit"
+                                  sx={{ mr: 0.1 }}
+                                  onClick={() => {
+                                    setUpdatedDate(day.date);
+                                  }}
+                                >
+                                  <EditIcon color="success" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton
+                                  edge="end"
+                                  aria-label="delete"
+                                  onClick={() => {
+                                    setCustomHolidays((prev) =>
+                                      prev.filter(
+                                        (holiday) => holiday.date !== day.date
+                                      )
+                                    );
+                                  }}
+                                >
+                                  <DeleteIcon sx={{ color: pink[500] }} />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          }
+                        >
+                          <ListItemAvatar>
+                            <Avatar>
+                              <CalendarMonthIcon color="primary" />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={day.date}
+                            secondary={day.category}
+                          />
+                        </ListItem>
+                        <Divider />
+                      </>
                     );
                   })}
               </List>
