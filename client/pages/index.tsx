@@ -354,9 +354,8 @@ const Home: NextPage = () => {
                       );
                     }
                     return (
-                      <>
+                      <div key={day.date}>
                         <ListItem
-                          key={day.date}
                           secondaryAction={
                             <>
                               <Tooltip title="Edit">
@@ -400,7 +399,7 @@ const Home: NextPage = () => {
                           />
                         </ListItem>
                         <Divider />
-                      </>
+                      </div>
                     );
                   })}
               </List>
