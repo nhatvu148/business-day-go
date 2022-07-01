@@ -78,7 +78,7 @@ const Home: NextPage = () => {
     if (isError) {
       setTimeout(() => {
         setIsError(false);
-      }, 3000);
+      }, 5000);
     }
   }, [isError]);
 
@@ -86,7 +86,7 @@ const Home: NextPage = () => {
     if (isSuccess) {
       setTimeout(() => {
         setIsSuccess(false);
-      }, 3000);
+      }, 5000);
     }
   }, [isSuccess]);
 
@@ -387,6 +387,8 @@ const Home: NextPage = () => {
                                         (holiday) => holiday.date !== day.date
                                       )
                                     );
+                                    setSuccessMessage(`Deleted ${day.date}`);
+                                    setIsSuccess(true);
                                   }}
                                 >
                                   <DeleteIcon sx={{ color: pink[500] }} />
