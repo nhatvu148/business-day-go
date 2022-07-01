@@ -29,6 +29,7 @@ import Avatar from "@mui/material/Avatar";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { pink } from "@mui/material/colors";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
@@ -61,6 +62,7 @@ const Home: NextPage = () => {
   const [category, setCategory] = useState("");
   const [date, setDate] = useState<moment.Moment | null>(null);
   const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (isError) {
@@ -78,20 +80,30 @@ const Home: NextPage = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const closeDialog = () => {
     setOpen(false);
+  };
+
+  const handleClose = (
+    event: {},
+    reason: "backdropClick" | "escapeKeyDown"
+  ) => {
+    if (reason && reason == "backdropClick") {
+      return;
+    }
+    closeDialog();
   };
 
   const handleAdd = () => {
     if (date === null || category === "") {
+      setErrorMessage("Date or Category cannot be empty");
       setIsError(true);
       return;
     }
-    if (
-      customHolidays.some(
-        (holiday) => holiday.date === moment(date).format("YYYY/MM/DD")
-      )
-    ) {
+
+    const newDate = moment(date).format("YYYY/MM/DD");
+    if (customHolidays.some((holiday) => holiday.date === newDate)) {
+      setErrorMessage(`Date ${newDate} already exists`);
       setIsError(true);
       return;
     }
@@ -115,14 +127,14 @@ const Home: NextPage = () => {
             position: "fixed",
             left: "700px",
             zIndex: 2,
-            marginTop: "-15px",
+            marginTop: "-40px",
           }}
           severity="error"
           onClose={() => {
             setIsError(false);
           }}
         >
-          This is a error alert — check it out!
+          {errorMessage}
         </Alert>
       )}
       <div
@@ -203,13 +215,30 @@ const Home: NextPage = () => {
           onClose={handleClose}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
-          hideBackdrop
+          // hideBackdrop
           disableScrollLock
           disableEnforceFocus
+          disableBackdropClick={false}
+          // @ts-ignore
           PaperComponent={OpenDialogDragger}
+          sx={{ pointerEvents: "auto" }}
         >
           <DialogTitle id="alert-dialog-title" sx={{ cursor: "move" }}>
-            {"Add a new Holiday or Business day"}
+            <div style={{ marginRight: 25 }}>
+              {"Add a new Holiday or Business day"}
+            </div>
+            <IconButton
+              aria-label="close"
+              onClick={closeDialog}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 12,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
           </DialogTitle>
           <DialogContent>
             <div
@@ -243,9 +272,7 @@ const Home: NextPage = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleAdd}>Add</Button>
-            <Button onClick={handleClose} autoFocus>
-              Cancel
-            </Button>
+            <Button onClick={closeDialog}>Cancel</Button>
           </DialogActions>
         </Dialog>
       </div>

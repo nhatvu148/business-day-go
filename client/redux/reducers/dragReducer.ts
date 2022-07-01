@@ -9,7 +9,7 @@ const dragReducer = (state = initialState, action: TDragAction) => {
     case ActionTypes.DRAG_STOP_DIALOG:
       return {
         ...state,
-        stopDragDialogAt: { x: action.x, y: action.y },
+        stopDragDialogAt: action.stopDragDialogAt,
       };
 
     default:

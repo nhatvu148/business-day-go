@@ -6,12 +6,16 @@ export enum ActionTypes {
   DRAG_STOP_DIALOG,
 }
 
+export interface ICoordinate {
+  x: number;
+  y: number;
+}
+
 export interface IDragState {
-  stopDragDialogAt: { x: number; y: number };
+  stopDragDialogAt: ICoordinate;
 }
 
 export type TDragAction = {
   type: ActionTypes.DRAG_STOP_DIALOG;
-  x: number;
-  y: number;
+  stopDragDialogAt: ICoordinate;
 };

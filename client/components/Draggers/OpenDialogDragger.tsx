@@ -2,11 +2,12 @@ import { Paper } from "@mui/material";
 import React, { FC } from "react";
 import Draggable from "react-draggable";
 import { connect } from "react-redux";
-import { AnyAction } from "redux";
+import { AnyAction, bindActionCreators } from "redux";
 import { ThunkDispatch } from "redux-thunk";
+import { setDragStopDialog } from "redux/actions/dragActions";
 import { IAppState } from "redux/reducers";
 import { getDrag } from "redux/selectors";
-import { ActionTypes, IDragState } from "redux/types";
+import { ICoordinate, IDragState } from "redux/types";
 
 interface IStateProps {
   drag: IDragState;
@@ -14,6 +15,9 @@ interface IStateProps {
 
 interface IDispatchProps {
   dispatch: ThunkDispatch<{}, {}, AnyAction>;
+  setDragStopDialog: (
+    newData: ICoordinate
+  ) => (dispatch: ThunkDispatch<{}, {}, AnyAction>) => void;
 }
 
 type IProps = IStateProps & IDispatchProps;
@@ -21,6 +25,7 @@ type IProps = IStateProps & IDispatchProps;
 const OpenDialogDragger: FC<IProps> = ({
   drag: { stopDragDialogAt },
   dispatch,
+  setDragStopDialog,
   ...props
 }) => {
   return (
@@ -28,11 +33,7 @@ const OpenDialogDragger: FC<IProps> = ({
       handle="#alert-dialog-title"
       position={{ x: stopDragDialogAt.x, y: stopDragDialogAt.y }}
       onStop={(e, data) => {
-        dispatch({
-          type: ActionTypes.DRAG_STOP_DIALOG,
-          x: data.x,
-          y: data.y,
-        });
+        setDragStopDialog({ x: data.x, y: data.y });
       }}
     >
       <Paper {...props} />
@@ -46,7 +47,12 @@ const mapStateToProps = (state: IAppState): IStateProps => ({
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, AnyAction>) => {
   return {
-    dispatch,
+    ...bindActionCreators(
+      {
+        setDragStopDialog,
+      },
+      dispatch
+    ),
   };
 };
 
