@@ -1,4 +1,6 @@
 import Head from "next/head";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -13,7 +15,9 @@ export default function Layout({ children }: LayoutProps) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {children}
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        {children}
+      </LocalizationProvider>
     </>
   );
 }

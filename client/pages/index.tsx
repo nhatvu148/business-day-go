@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import {
   Button,
-  Grid,
   List,
   Typography,
   IconButton,
   styled,
   Box,
   Card,
-  Tooltip
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
@@ -22,6 +29,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { pink } from "@mui/material/colors";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import moment from "moment";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -45,6 +54,35 @@ function generate(element: React.ReactElement) {
 
 const Home: NextPage = () => {
   const [customHolidays, setCustomHolidays] = useState(initialCustomHolidays);
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState<moment.Moment | null>(null);
+
+  const handleChange = (newValue: moment.Moment | null) => {
+    setDate(newValue);
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleAdd = () => {
+    setCustomHolidays((prev) => [
+      ...prev,
+      { date: moment(date).format("YYYY/MM/DD"), category },
+    ]);
+    setDate(null);
+    setCategory("");
+  };
+
+  const handleChangeCategory = (event: SelectChangeEvent) => {
+    setCategory(event.target.value);
+  };
+
   return (
     <div
       style={{
@@ -70,10 +108,7 @@ const Home: NextPage = () => {
                 edge="end"
                 aria-label="add"
                 onClick={() => {
-                  setCustomHolidays((prev) => [
-                    ...prev,
-                    { date: "2022/05/06", category: "Holiday" },
-                  ]);
+                  handleClickOpen();
                 }}
               >
                 <AddBoxIcon color="primary" />
@@ -119,6 +154,48 @@ const Home: NextPage = () => {
           </Demo>
         </Card>
       </Box>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Add a new Holiday or Business day"}
+        </DialogTitle>
+        <DialogContent>
+          <div
+            style={{ marginTop: 5, display: "flex", justifyContent: "center" }}
+          >
+            <DesktopDatePicker
+              label="Date"
+              inputFormat="YYYY-MM-DD"
+              value={date}
+              onChange={handleChange}
+              renderInput={(params) => <TextField {...params} />}
+            />
+            <FormControl fullWidth sx={{ width: "50%", ml: 2 }}>
+              <InputLabel id="demo-simple-select-label">Category</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={category}
+                label="Category"
+                onChange={handleChangeCategory}
+              >
+                <MenuItem value={"Holiday"}>Holiday</MenuItem>
+                <MenuItem value={"Business day"}>Business day</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAdd}>Add</Button>
+          <Button onClick={handleClose} autoFocus>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
