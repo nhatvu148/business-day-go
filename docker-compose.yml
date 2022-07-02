@@ -13,3 +13,34 @@ services:
       - PORT=:54528
     ports:
       - "54528:54528"
+    networks:
+      - custom_holiday_network
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    ports:
+      - 5456:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql:Z
+    env_file:
+      - .env
+    networks:
+      - custom_holiday_network
+
+  pgadmin4:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    env_file:
+      - .env
+    ports:
+      - "8989:80"
+    networks:
+      - custom_holiday_network
+
+networks:
+  custom_holiday_network:
+
+
+volumes:
+  postgresql-data:
