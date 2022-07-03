@@ -25,7 +25,7 @@ type CustomHoliday struct {
 	Category string    `json:"category"`
 }
 
-func (m *DBModel) GetCustomHolidays(date time.Time) ([]CustomHoliday, error) {
+func (m *DBModel) GetCustomHolidays() ([]CustomHoliday, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -52,4 +52,72 @@ func (m *DBModel) GetCustomHolidays(date time.Time) ([]CustomHoliday, error) {
 	}
 
 	return customHolidays, nil
+}
+
+func (m *DBModel) GetCustomHolidayByDate(date time.Time) (CustomHoliday, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var customHoliday CustomHoliday
+
+	row := m.DB.QueryRowContext(ctx, `SELECT * FROM custom_holiday WHERE date = $1`, date)
+	if err := row.Scan(&customHoliday.Date,
+		&customHoliday.Category); err != nil {
+		return customHoliday, err
+	}
+
+	return customHoliday, nil
+}
+
+func (m *DBModel) AddCustomHoliday(customHoliday CustomHoliday) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	sqlString := `
+		INSERT INTO custom_holiday
+			(date, category)
+		VALUES ($1, $2)
+	`
+
+	_, err := m.DB.ExecContext(ctx, sqlString, customHoliday.Date, customHoliday.Category)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DBModel) UpdateCustomHoliday(customHoliday CustomHoliday) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	sqlString := `
+		UPDATE custom_holiday
+		SET category = $1
+		WHERE date = $2
+	`
+
+	_, err := m.DB.ExecContext(ctx, sqlString, customHoliday.Category, customHoliday.Date)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DBModel) DeleteCustomHoliday(date time.Time) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	sqlString := `
+		DELETE FROM custom_holiday
+		WHERE date = $1
+	`
+
+	_, err := m.DB.ExecContext(ctx, sqlString, date)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
