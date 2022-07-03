@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/nhatvu148/business-day-go/db"
 	"github.com/nhatvu148/business-day-go/middlewares"
 	tools "github.com/nhatvu148/business-day-go/tools"
 	"github.com/nhatvu148/business-day-go/web"
@@ -29,14 +30,48 @@ func (m *CustomError) Error() string {
 func HandleRequests() {
 	tools.SetLogger()
 
-	r := http.NewServeMux()
+	conn := db.InitDB()
+	defer conn.Close()
 
+	r := http.NewServeMux()
 	r.HandleFunc("/", HomePageHandler)
 	r.HandleFunc("/catfact", CatFactPageHandler)
 	r.HandleFunc("/business-day", BusinessDayHandler)
+	r.HandleFunc("/custom-holiday", CustomHolidayHandler)
 
 	m := middlewares.RequestPathLogger(r)
 	log.Fatal().Err(http.ListenAndServe(os.Getenv("PORT"), m)).Msg("")
+}
+
+func CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		query := r.URL.Query()
+		dateString := query.Get("date")
+		_, date := tools.IsValidDate(dateString)
+		customHolidays, err := tools.DB.GetCustomHolidays(date)
+
+		if err != nil {
+			log.Err(err).Msg("Get Custom holiday error")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res, err := json.Marshal(customHolidays)
+		if err != nil {
+			log.Err(err).Msg("JSON marshal error")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(res)
+
+	// case "POST":
+
+	default:
+		log.Err(&CustomError{msg: "Unsupported method"}).Msg("Unsupported method")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {

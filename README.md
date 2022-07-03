@@ -13,3 +13,7 @@
 ## Run docker compose for production
 
 - docker-compose up --build
+
+## Migrate database
+
+- migrate create -ext sql -dir db/migration -seq custom_holiday
