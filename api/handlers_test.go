@@ -13,6 +13,27 @@ import (
 	"github.com/nhatvu148/business-day-go/api"
 )
 
+// func TestCustomHolidayHandler(t *testing.T) {
+// 	app := api.SetupApp()
+
+// 	req := httptest.NewRequest(http.MethodGet, "api/v1/custom-holiday", nil)
+// 	w := httptest.NewRecorder()
+// 	app.HomePageHandler(w, req)
+// 	res := w.Result()
+// 	defer res.Body.Close()
+// 	html, err := ioutil.ReadAll(res.Body)
+// 	if err != nil {
+// 		t.Errorf("expected error to be nil got %v", err)
+// 	}
+
+// 	htmlString := string(html)
+
+// 	expectedString := `Custom Holidays`
+// 	if !strings.Contains(htmlString, expectedString) {
+// 		t.Errorf("html content does not contain the expected string: %v", expectedString)
+// 	}
+// }
+
 func TestHomePageHandler(t *testing.T) {
 	app := api.SetupApp()
 
