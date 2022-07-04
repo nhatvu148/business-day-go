@@ -33,21 +33,6 @@ func addCustomHoliday(t testing.TB, app *api.Application, date, category string)
 	res := w.Result()
 	defer res.Body.Close()
 
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf("expected error to be nil got %v", err)
-	}
-
-	var result api.CustomHoliday
-	err = json.Unmarshal(data, &result)
-	if err != nil {
-		t.Errorf("%v", err)
-	}
-
-	if result.Id == 0 {
-		t.Errorf("expected Id > 0 got %v", result.Id)
-	}
-
 	if res.StatusCode != http.StatusCreated {
 		t.Errorf("expected status code %v got %v", http.StatusCreated, res.StatusCode)
 	}
@@ -241,6 +226,7 @@ func TestIsBusinessDayHandler(t *testing.T) {
 	}
 
 	addCustomHoliday(t, app, "2022-12-24", "Business day")
+	addCustomHoliday(t, app, "2022-07-05", "Holiday")
 
 	cases := []struct {
 		description string
@@ -270,6 +256,11 @@ func TestIsBusinessDayHandler(t *testing.T) {
 		{
 			description: "Test Case 5",
 			date:        "2023-01-02",
+			expected:    false,
+		},
+		{
+			description: "Test Case 5",
+			date:        "2022-07-05",
 			expected:    false,
 		},
 	}
