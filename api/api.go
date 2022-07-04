@@ -9,7 +9,7 @@ import (
 	"github.com/nhatvu148/business-day-go/db"
 	"github.com/nhatvu148/business-day-go/middlewares"
 	"github.com/nhatvu148/business-day-go/models"
-	"github.com/nhatvu148/business-day-go/tools"
+	tools "github.com/nhatvu148/business-day-go/tools"
 	"github.com/rs/zerolog/log"
 )
 

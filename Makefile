@@ -9,6 +9,9 @@ test:
 test1:
 	go test -v ./... -run CustomHolidayHandler
 
+test2:
+	go test -v ./... -run GetCustomDayCategory
+
 build:
 	go build -o main ./cmd/server
 

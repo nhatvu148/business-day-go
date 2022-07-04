@@ -13,21 +13,49 @@ import (
 	"github.com/nhatvu148/business-day-go/api"
 )
 
+func cleanupDB(t testing.TB, app *api.Application) {
+	req := httptest.NewRequest(http.MethodDelete, "/api/v1/custom-holiday", nil)
+	w := httptest.NewRecorder()
+	app.CustomHolidayHandler(w, req)
+	res := w.Result()
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
+	}
+}
+
+func addCustomHoliday(t testing.TB, app *api.Application, date, category string) {
+	bodyReader := strings.NewReader(fmt.Sprintf(`{"date": "%v", "category": "%v"}`, date, category))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/custom-holiday", bodyReader)
+	w := httptest.NewRecorder()
+	app.CustomHolidayHandler(w, req)
+	res := w.Result()
+	defer res.Body.Close()
+
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Errorf("expected error to be nil got %v", err)
+	}
+
+	var result api.CustomHoliday
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if result.Id == 0 {
+		t.Errorf("expected Id > 0 got %v", result.Id)
+	}
+
+	if res.StatusCode != http.StatusCreated {
+		t.Errorf("expected status code %v got %v", http.StatusCreated, res.StatusCode)
+	}
+}
+
 func TestCustomHolidayHandler(t *testing.T) {
 	app := api.SetupApp()
 	var returningID int64 = 0
-
-	cleanupDB := func(t testing.TB) {
-		req := httptest.NewRequest(http.MethodDelete, "/api/v1/custom-holiday", nil)
-		w := httptest.NewRecorder()
-		app.CustomHolidayHandler(w, req)
-		res := w.Result()
-		defer res.Body.Close()
-
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
-		}
-	}
 
 	t.Run("GET Empty Custom Holiday", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/v1/custom-holiday", nil)
@@ -133,7 +161,7 @@ func TestCustomHolidayHandler(t *testing.T) {
 		}
 	})
 
-	cleanupDB(t)
+	cleanupDB(t, app)
 }
 
 func TestHomePageHandler(t *testing.T) {
@@ -212,6 +240,8 @@ func TestIsBusinessDayHandler(t *testing.T) {
 		}
 	}
 
+	addCustomHoliday(t, app, "2022-12-24", "Business day")
+
 	cases := []struct {
 		description string
 		date        string
@@ -230,7 +260,7 @@ func TestIsBusinessDayHandler(t *testing.T) {
 		{
 			description: "Test Case 3",
 			date:        "2022-12-24",
-			expected:    false,
+			expected:    true,
 		},
 		{
 			description: "Test Case 4",
@@ -249,4 +279,6 @@ func TestIsBusinessDayHandler(t *testing.T) {
 			checkBusinessDayResult(t, tt.date, tt.expected)
 		})
 	}
+
+	cleanupDB(t, app)
 }

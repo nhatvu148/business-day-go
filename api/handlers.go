@@ -253,7 +253,17 @@ func (app *Application) BusinessDayHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result = BusinessDayResult{Result: tools.IsBusinessDay(date), Error: ""}
+	isBusinessDay := false
+	customHoliday, err := app.DB.GetCustomHolidayByDate(date)
+	if err != nil {
+		isBusinessDay = tools.IsBusinessDay(date)
+	} else if customHoliday.Category == "Business day" {
+		isBusinessDay = true
+	} else if customHoliday.Category == "Holiday" {
+		isBusinessDay = false
+	}
+
+	result = BusinessDayResult{Result: isBusinessDay, Error: ""}
 	res, err := json.Marshal(result)
 
 	if err != nil {
