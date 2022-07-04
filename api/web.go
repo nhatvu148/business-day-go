@@ -1,4 +1,4 @@
-package web
+package api
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nhatvu148/business-day-go/tools"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,15 +21,15 @@ type CatFact struct {
 	Length int
 }
 
-func Render(w http.ResponseWriter, t string) {
+func (app *Application) Render(w http.ResponseWriter, t string) {
 	partials := []string{
-		fmt.Sprintf("%s/web/templates/base.html", tools.RootPath),
-		fmt.Sprintf("%s/web/templates/header.html", tools.RootPath),
-		fmt.Sprintf("%s/web/templates/footer.html", tools.RootPath),
+		fmt.Sprintf("%s/templates/base.html", app.Config.RootPath),
+		fmt.Sprintf("%s/templates/header.html", app.Config.RootPath),
+		fmt.Sprintf("%s/templates/footer.html", app.Config.RootPath),
 	}
 
 	var templateSlice []string
-	templateSlice = append(templateSlice, fmt.Sprintf("%s/web/templates/%s", tools.RootPath, t))
+	templateSlice = append(templateSlice, fmt.Sprintf("%s/templates/%s", app.Config.RootPath, t))
 
 	templateSlice = append(templateSlice, partials...)
 

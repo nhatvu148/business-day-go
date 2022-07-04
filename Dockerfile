@@ -22,7 +22,7 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o main ./cm
 FROM scratch
 WORKDIR /app
 COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=go-builder /app/web/templates/ ./web/templates/
+COPY --from=go-builder /app/templates/ ./templates/
 COPY --from=go-builder /app/main .
 COPY --from=node-builder /app/dist ./client/dist
 

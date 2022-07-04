@@ -3,10 +3,8 @@ package db
 import (
 	"database/sql"
 
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/rs/zerolog/log"
-
-	"github.com/nhatvu148/business-day-go/models"
-	"github.com/nhatvu148/business-day-go/tools"
 
 	_ "github.com/lib/pq"
 )
@@ -25,12 +23,22 @@ func OpenDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func InitDB() *sql.DB {
-	conn, err := OpenDB(tools.DSN)
+func InitDB(dsn string) *sql.DB {
+	conn, err := OpenDB(dsn)
 	if err != nil {
 		log.Fatal().Err(err).Msg("DB connection error")
 	}
-	tools.DB = models.DBModel{DB: conn}
 
 	return conn
+}
+
+func RunDBMigration(migrationURL string, databaseURL string) {
+	migration, err := migrate.New(migrationURL, databaseURL)
+	if err != nil {
+		log.Fatal().Err(err).Msg("cannot create new migrate instance")
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal().Err(err).Msg("failed to run migrate up")
+	}
 }

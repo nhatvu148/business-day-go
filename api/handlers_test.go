@@ -1,4 +1,4 @@
-package handlers_test
+package api_test
 
 import (
 	"encoding/json"
@@ -10,13 +10,15 @@ import (
 	"strings"
 	"testing"
 
-	handlers "github.com/nhatvu148/business-day-go/handlers"
+	"github.com/nhatvu148/business-day-go/api"
 )
 
 func TestHomePageHandler(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	app := api.SetupApp()
+
+	req := httptest.NewRequest(http.MethodGet, "/ui", nil)
 	w := httptest.NewRecorder()
-	handlers.HomePageHandler(w, req)
+	app.HomePageHandler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
 	html, err := ioutil.ReadAll(res.Body)
@@ -26,16 +28,18 @@ func TestHomePageHandler(t *testing.T) {
 
 	htmlString := string(html)
 
-	expectedString := `Welcome to <a href="https://nextjs.org">Next.js!`
+	expectedString := `Custom Holidays`
 	if !strings.Contains(htmlString, expectedString) {
 		t.Errorf("html content does not contain the expected string: %v", expectedString)
 	}
 }
 
 func TestCatFactPageHandler(t *testing.T) {
+	app := api.SetupApp()
+
 	req := httptest.NewRequest(http.MethodGet, "/catfact", nil)
 	w := httptest.NewRecorder()
-	handlers.CatFactPageHandler(w, req)
+	app.CatFactPageHandler(w, req)
 	res := w.Result()
 	defer res.Body.Close()
 	html, err := ioutil.ReadAll(res.Body)
@@ -57,11 +61,13 @@ func TestCatFactPageHandler(t *testing.T) {
 }
 
 func TestIsBusinessDayHandler(t *testing.T) {
+	app := api.SetupApp()
+
 	checkBusinessDayResult := func(t testing.TB, date string, expected bool) {
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/business-day?date=%s", date), nil)
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/business-day?date=%s", date), nil)
 		w := httptest.NewRecorder()
 
-		handlers.BusinessDayHandler(w, req)
+		app.BusinessDayHandler(w, req)
 		res := w.Result()
 		defer res.Body.Close()
 
@@ -70,7 +76,7 @@ func TestIsBusinessDayHandler(t *testing.T) {
 			t.Errorf("expected error to be nil got %v", err)
 		}
 
-		var businessDayResult handlers.BusinessDayResult
+		var businessDayResult api.BusinessDayResult
 		err = json.Unmarshal(data, &businessDayResult)
 		if err != nil {
 			t.Errorf("%v", err)

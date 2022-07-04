@@ -10,7 +10,8 @@ services:
     environment:
       - LOG_TYPE=USER_FRIENDLY
       - ROOT_PATH=/app
-      - PORT=:54528
+      - PORT=54528
+      - ENV=development
     ports:
       - "54528:54528"
     volumes:

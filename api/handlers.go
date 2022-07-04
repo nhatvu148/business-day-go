@@ -1,18 +1,14 @@
-package handlers
+package api
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"regexp"
 
-	"github.com/nhatvu148/business-day-go/db"
-	"github.com/nhatvu148/business-day-go/middlewares"
 	"github.com/nhatvu148/business-day-go/models"
 	tools "github.com/nhatvu148/business-day-go/tools"
-	"github.com/nhatvu148/business-day-go/web"
 	"github.com/rs/zerolog/log"
 )
 
@@ -29,28 +25,12 @@ func (m *CustomError) Error() string {
 	return m.msg
 }
 
-func HandleRequests() {
-	tools.SetLogger()
-
-	conn := db.InitDB()
-	defer conn.Close()
-
-	r := http.NewServeMux()
-	r.HandleFunc("/", HomePageHandler)
-	r.HandleFunc("/catfact", CatFactPageHandler)
-	r.HandleFunc("/api/v1/business-day", BusinessDayHandler)
-	r.HandleFunc("/api/v1/custom-holiday", CustomHolidayHandler)
-
-	m := middlewares.RequestPathLogger(middlewares.SetCors(r))
-	log.Fatal().Err(http.ListenAndServe(os.Getenv("PORT"), m)).Msg("")
-}
-
 type CustomHoliday struct {
 	Date     string `json:"date"`
 	Category string `json:"category"`
 }
 
-func CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		query := r.URL.Query()
@@ -204,9 +184,9 @@ func CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	distPath := fmt.Sprintf("%s/client/dist", tools.RootPath)
-	htmlPath := fmt.Sprintf("%s/client/dist/index.html", tools.RootPath)
+func (app *Application) HomePageHandler(w http.ResponseWriter, r *http.Request) {
+	distPath := fmt.Sprintf("%s/client/dist", app.Config.RootPath)
+	htmlPath := fmt.Sprintf("%s/client/dist/index.html", app.Config.RootPath)
 
 	fileServer := http.FileServer(http.Dir(distPath))
 	fileMatcher := regexp.MustCompile(`\.[a-zA-Z]*$`)
@@ -218,11 +198,11 @@ func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func CatFactPageHandler(w http.ResponseWriter, r *http.Request) {
-	web.Render(w, "content.html")
+func (app *Application) CatFactPageHandler(w http.ResponseWriter, r *http.Request) {
+	app.Render(w, "content.html")
 }
 
-func BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) BusinessDayHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	dateString := query.Get("date")
 

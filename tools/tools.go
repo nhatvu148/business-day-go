@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	holiday "github.com/holiday-jp/holiday_jp-go"
 	"github.com/nhatvu148/business-day-go/models"
 	"github.com/rs/zerolog"
@@ -19,10 +21,27 @@ const (
 	dbname   = "custom_holiday"
 )
 
+type Config struct {
+	RootPath     string
+	DatabaseURL  string
+	MigrationURL string
+	Port         string
+	LogType      string
+	Env          string
+}
+
+func (config *Config) LoadConfig() {
+	config.RootPath = os.Getenv("ROOT_PATH")
+	config.DatabaseURL = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname) // os.Getenv("DB_URL")
+	config.MigrationURL = os.Getenv("MIGRATION_URL")
+	config.Port = os.Getenv("PORT")
+	config.LogType = os.Getenv("LOG_TYPE")
+	config.Env = os.Getenv("ENV")
+}
+
 var (
-	DSN      = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	DB       = models.DBModel{DB: nil}
-	RootPath = os.Getenv("ROOT_PATH")
+	DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	DB  = models.DBModel{DB: nil}
 )
 
 func IsValidDate(dateString string) (bool, time.Time) {
@@ -37,9 +56,8 @@ func IsBusinessDay(date time.Time) bool {
 	return !(date.Weekday() == time.Saturday || date.Weekday() == time.Sunday || holiday.IsHoliday(date))
 }
 
-func SetLogger() {
-	logType := os.Getenv("LOG_TYPE")
-	if logType == "USER_FRIENDLY" {
+func (config *Config) SetLogger() {
+	if config.LogType == "USER_FRIENDLY" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	}
 }
