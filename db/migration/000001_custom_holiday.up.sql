@@ -1,5 +1,6 @@
 CREATE TYPE CATEGORY AS ENUM ('Holiday', 'Business day');
 CREATE TABLE custom_holiday (
-    date DATE primary key,
-    category CATEGORY not null
+    id SERIAL PRIMARY KEY,
+    date DATE UNIQUE NOT NULL,
+    category CATEGORY NOT NULL
 );

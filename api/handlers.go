@@ -26,6 +26,7 @@ func (m *CustomError) Error() string {
 }
 
 type CustomHoliday struct {
+	Id       int64  `json:"id"`
 	Date     string `json:"date"`
 	Category string `json:"category"`
 }
@@ -138,6 +139,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			log.Err(err).Msg("Unmarshal error")
 		}
 
+		id := payload.Id
 		dateString := payload.Date
 		category := payload.Category
 		isDateValid, date := tools.IsValidDate(dateString)
@@ -147,7 +149,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		customHoliday := models.CustomHoliday{Date: date, Category: category}
+		customHoliday := models.CustomHoliday{Id: id, Date: date, Category: category}
 
 		err = app.DB.UpdateCustomHoliday(customHoliday)
 		if err != nil {

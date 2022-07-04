@@ -23,6 +23,7 @@ FROM scratch
 WORKDIR /app
 COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=go-builder /app/templates/ ./templates/
+COPY --from=go-builder /app/db/migration ./db/migration
 COPY --from=go-builder /app/main .
 COPY --from=node-builder /app/dist ./client/dist
 

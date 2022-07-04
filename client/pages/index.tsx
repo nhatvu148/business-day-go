@@ -50,14 +50,6 @@ const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const initialCustomHolidays = [
-  { date: "2022-02-02", category: "Holiday" },
-  { date: "2022-03-03", category: "Business day" },
-  { date: "2022-04-04", category: "Holiday" },
-  { date: "2022-05-05", category: "Business day" },
-  { date: "2022-06-06", category: "Holiday" },
-];
-
 function generate(element: React.ReactElement) {
   return [0, 1, 2].map((value) =>
     React.cloneElement(element, {
@@ -113,7 +105,6 @@ const Home: NextPage = () => {
     (async () => {
       const res = await getCustomHolidays();
       setCustomHolidays(res);
-      console.log(res);
     })();
   }, [refetch]);
 
@@ -207,7 +198,11 @@ const Home: NextPage = () => {
     //     }
     //   })
     // );
+    const id = customHolidays.find(
+      (holiday) => holiday.date === updatedDate
+    )?.id;
     await updateCustomHoliday({
+      id,
       date: newUpdatedDate.format("YYYY-MM-DD"),
       category: updatedCategory,
     });

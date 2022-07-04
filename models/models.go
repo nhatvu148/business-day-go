@@ -21,6 +21,7 @@ func NewModels(db *sql.DB) Models {
 }
 
 type CustomHoliday struct {
+	Id       int64     `json:"id"`
 	Date     time.Time `json:"date"`
 	Category string    `json:"category"`
 }
@@ -40,7 +41,9 @@ func (m *DBModel) GetCustomHolidays() ([]CustomHoliday, error) {
 	for rows.Next() {
 		var customHoliday CustomHoliday
 
-		if err := rows.Scan(&customHoliday.Date,
+		if err := rows.Scan(
+			&customHoliday.Id,
+			&customHoliday.Date,
 			&customHoliday.Category); err != nil {
 			return customHolidays, err
 		}
@@ -61,7 +64,9 @@ func (m *DBModel) GetCustomHolidayByDate(date time.Time) (CustomHoliday, error) 
 	var customHoliday CustomHoliday
 
 	row := m.DB.QueryRowContext(ctx, `SELECT * FROM custom_holiday WHERE date = $1`, date)
-	if err := row.Scan(&customHoliday.Date,
+	if err := row.Scan(
+		&customHoliday.Id,
+		&customHoliday.Date,
 		&customHoliday.Category); err != nil {
 		return customHoliday, err
 	}
@@ -93,11 +98,11 @@ func (m *DBModel) UpdateCustomHoliday(customHoliday CustomHoliday) error {
 
 	sqlString := `
 		UPDATE custom_holiday
-		SET category = $1
-		WHERE date = $2
+		SET date = $1, category = $2
+		WHERE id = $3
 	`
 
-	_, err := m.DB.ExecContext(ctx, sqlString, customHoliday.Category, customHoliday.Date)
+	_, err := m.DB.ExecContext(ctx, sqlString, customHoliday.Date, customHoliday.Category, customHoliday.Id)
 	if err != nil {
 		return err
 	}

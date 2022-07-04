@@ -45,6 +45,7 @@ export const deleteCustomHoliday = async (date: string) => {
 };
 
 export const updateCustomHoliday = async ({
+  id,
   date,
   category,
 }: CustomHoliday) => {
@@ -52,6 +53,7 @@ export const updateCustomHoliday = async ({
   const response = await axios.put(
     `${publicRuntimeConfig.apiURL}/api/v1/custom-holiday`,
     {
+      id,
       date,
       category,
     }
