@@ -13,26 +13,128 @@ import (
 	"github.com/nhatvu148/business-day-go/api"
 )
 
-// func TestCustomHolidayHandler(t *testing.T) {
-// 	app := api.SetupApp()
+func TestCustomHolidayHandler(t *testing.T) {
+	app := api.SetupApp()
+	var returningID int64 = 0
 
-// 	req := httptest.NewRequest(http.MethodGet, "api/v1/custom-holiday", nil)
-// 	w := httptest.NewRecorder()
-// 	app.HomePageHandler(w, req)
-// 	res := w.Result()
-// 	defer res.Body.Close()
-// 	html, err := ioutil.ReadAll(res.Body)
-// 	if err != nil {
-// 		t.Errorf("expected error to be nil got %v", err)
-// 	}
+	cleanupDB := func(t testing.TB) {
+		req := httptest.NewRequest(http.MethodDelete, "/api/v1/custom-holiday", nil)
+		w := httptest.NewRecorder()
+		app.CustomHolidayHandler(w, req)
+		res := w.Result()
+		defer res.Body.Close()
 
-// 	htmlString := string(html)
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
+		}
+	}
 
-// 	expectedString := `Custom Holidays`
-// 	if !strings.Contains(htmlString, expectedString) {
-// 		t.Errorf("html content does not contain the expected string: %v", expectedString)
-// 	}
-// }
+	t.Run("GET Empty Custom Holiday", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/custom-holiday", nil)
+		w := httptest.NewRecorder()
+		app.CustomHolidayHandler(w, req)
+		res := w.Result()
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("expected error to be nil got %v", err)
+		}
+
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
+		}
+
+		dataString := string(data)
+		expectedString := `[]`
+		if !strings.Contains(dataString, expectedString) {
+			t.Errorf("expected %v got %v", expectedString, dataString)
+		}
+
+	})
+
+	t.Run("POST Insert Custom Holiday by date", func(t *testing.T) {
+		bodyReader := strings.NewReader(`{"date": "2022-12-22", "category": "Business day"}`)
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/custom-holiday", bodyReader)
+		w := httptest.NewRecorder()
+		app.CustomHolidayHandler(w, req)
+		res := w.Result()
+		defer res.Body.Close()
+
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("expected error to be nil got %v", err)
+		}
+
+		var result api.CustomHoliday
+		err = json.Unmarshal(data, &result)
+		if err != nil {
+			t.Errorf("%v", err)
+		}
+
+		if result.Id == 0 {
+			t.Errorf("expected Id > 0 got %v", result.Id)
+		}
+		returningID = result.Id
+
+		if res.StatusCode != http.StatusCreated {
+			t.Errorf("expected status code %v got %v", http.StatusCreated, res.StatusCode)
+		}
+	})
+
+	t.Run("PUT Update Custom Holiday by id", func(t *testing.T) {
+		bodyReader := strings.NewReader(fmt.Sprintf(`{"id": %d, "date": "2022-12-24", "category": "Holiday"}`, returningID))
+		req := httptest.NewRequest(http.MethodPut, "/api/v1/custom-holiday", bodyReader)
+		w := httptest.NewRecorder()
+		app.CustomHolidayHandler(w, req)
+		res := w.Result()
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
+		}
+	})
+
+	t.Run("GET Custom Holiday by date", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/custom-holiday?date=2022-12-24", nil)
+		w := httptest.NewRecorder()
+		app.CustomHolidayHandler(w, req)
+		res := w.Result()
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("expected error to be nil got %v", err)
+		}
+
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
+		}
+
+		var result api.CustomHoliday
+		err = json.Unmarshal(data, &result)
+		if err != nil {
+			t.Errorf("%v", err)
+		}
+
+		expectedString := "Holiday"
+		if result.Category != expectedString {
+			t.Errorf("expected %v got %v", expectedString, result.Category)
+		}
+	})
+
+	t.Run("DELETE Custom Holiday by date", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodDelete, "/api/v1/custom-holiday?date=2022-12-24", nil)
+		w := httptest.NewRecorder()
+		app.CustomHolidayHandler(w, req)
+		res := w.Result()
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected status code %v got %v", http.StatusOK, res.StatusCode)
+		}
+	})
+
+	cleanupDB(t)
+}
 
 func TestHomePageHandler(t *testing.T) {
 	app := api.SetupApp()

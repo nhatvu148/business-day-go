@@ -6,6 +6,9 @@ server:
 test:
 	go test -cover -v ./...
 
+test1:
+	go test -v ./... -run CustomHolidayHandler
+
 build:
 	go build -o main ./cmd/server
 
@@ -14,14 +17,17 @@ build-client:
 	yarn install; \
 	NEXT_TELEMETRY_DISABLED=1 yarn run export
 
-dev-server: 
-	docker-compose up dev-server dev-db pgadmin4 --build
+pgadmin4:
+	docker-compose up pgadmin4 -d
+
+dev-server:
+	docker-compose up dev-server dev-db --build
 
 test-server: 
-	docker-compose up test-server test-db pgadmin4 --build
+	docker-compose up test-server test-db --build
 
 prod-server: 
-	docker-compose up prod-server prod-db pgadmin4 --build
+	docker-compose up prod-server prod-db --build
 
 migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up

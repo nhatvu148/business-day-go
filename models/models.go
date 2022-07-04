@@ -74,7 +74,7 @@ func (m *DBModel) GetCustomHolidayByDate(date time.Time) (CustomHoliday, error) 
 	return customHoliday, nil
 }
 
-func (m *DBModel) AddCustomHoliday(customHoliday CustomHoliday) error {
+func (m *DBModel) AddCustomHoliday(customHoliday CustomHoliday) (int64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -82,17 +82,23 @@ func (m *DBModel) AddCustomHoliday(customHoliday CustomHoliday) error {
 		INSERT INTO custom_holiday
 			(date, category)
 		VALUES ($1, $2)
+		RETURNING id
 	`
 
-	_, err := m.DB.ExecContext(ctx, sqlString, customHoliday.Date, customHoliday.Category)
-	if err != nil {
-		return err
+	var customHoliday1 CustomHoliday
+
+	// use QueryRowContext instead of ExecContext to get returing id
+	row := m.DB.QueryRowContext(ctx, sqlString, customHoliday.Date, customHoliday.Category)
+
+	if err := row.Scan(
+		&customHoliday1.Id); err != nil {
+		return 0, err
 	}
 
-	return nil
+	return customHoliday1.Id, nil
 }
 
-func (m *DBModel) UpdateCustomHoliday(customHoliday CustomHoliday) error {
+func (m *DBModel) UpdateCustomHolidayById(customHoliday CustomHoliday) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -110,7 +116,7 @@ func (m *DBModel) UpdateCustomHoliday(customHoliday CustomHoliday) error {
 	return nil
 }
 
-func (m *DBModel) DeleteCustomHoliday(date time.Time) error {
+func (m *DBModel) DeleteCustomHolidayBDate(date time.Time) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -120,6 +126,22 @@ func (m *DBModel) DeleteCustomHoliday(date time.Time) error {
 	`
 
 	_, err := m.DB.ExecContext(ctx, sqlString, date)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DBModel) DeleteAllCustomHoliday() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	sqlString := `
+		DELETE FROM custom_holiday
+	`
+
+	_, err := m.DB.ExecContext(ctx, sqlString)
 	if err != nil {
 		return err
 	}

@@ -31,6 +31,10 @@ type CustomHoliday struct {
 	Category string `json:"category"`
 }
 
+type IdResponse struct {
+	Id int64 `json:"id"`
+}
+
 func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -118,13 +122,21 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 
 		customHoliday := models.CustomHoliday{Date: date, Category: category}
 
-		err = app.DB.AddCustomHoliday(customHoliday)
+		id, err := app.DB.AddCustomHoliday(customHoliday)
 		if err != nil {
 			log.Err(err).Msg("Insert customHoliday error")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		jsonResp, err := json.Marshal(IdResponse{Id: id})
+		if err != nil {
+			log.Err(err).Msg("JSON marshal error")
+		}
+
+		// WriteHeader before Write body to avoid superfluous response.WriteHeader call
 		w.WriteHeader(http.StatusCreated)
+		w.Write(jsonResp)
 
 	case "PUT":
 		payload := CustomHoliday{}
@@ -151,7 +163,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 
 		customHoliday := models.CustomHoliday{Id: id, Date: date, Category: category}
 
-		err = app.DB.UpdateCustomHoliday(customHoliday)
+		err = app.DB.UpdateCustomHolidayById(customHoliday)
 		if err != nil {
 			// How to get pq error code?
 			if err.Error() == "sql: no rows in result set" {
@@ -163,28 +175,36 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			}
 			return
 		}
-		w.WriteHeader(http.StatusCreated)
 
 	case "DELETE":
 		query := r.URL.Query()
 		dateString := query.Get("date")
 
-		isDateValid, date := tools.IsValidDate(dateString)
+		if dateString == "" {
+			err := app.DB.DeleteAllCustomHoliday()
 
-		if !isDateValid {
-			log.Err(&CustomError{msg: "Invalid date"}).Msg("Invalid date")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			if err != nil {
+				log.Err(err).Msg("Delete All Custom holiday error")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		} else {
+			isDateValid, date := tools.IsValidDate(dateString)
+
+			if !isDateValid {
+				log.Err(&CustomError{msg: "Invalid date"}).Msg("Invalid date")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			err := app.DB.DeleteCustomHolidayBDate(date)
+
+			if err != nil {
+				log.Err(err).Msg("Delete Custom holiday by date error")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		}
-
-		err := app.DB.DeleteCustomHoliday(date)
-
-		if err != nil {
-			log.Err(err).Msg("Get Custom holiday by date error")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
 
 	default:
 		log.Err(&CustomError{msg: "Unsupported method"}).Msg("Unsupported method")
