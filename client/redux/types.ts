@@ -1,7 +1,3 @@
-export interface IAppState {
-  drag: IDragState;
-}
-
 export enum ActionTypes {
   DRAG_STOP_DIALOG,
 }

@@ -8,7 +8,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	holiday "github.com/holiday-jp/holiday_jp-go"
-	"github.com/nhatvu148/business-day-go/models"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -24,6 +23,7 @@ const (
 type Config struct {
 	RootPath     string
 	DatabaseURL  string
+	DSN          string
 	MigrationURL string
 	Port         string
 	LogType      string
@@ -32,17 +32,13 @@ type Config struct {
 
 func (config *Config) LoadConfig() {
 	config.RootPath = os.Getenv("ROOT_PATH")
-	config.DatabaseURL = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname) // os.Getenv("DB_URL")
+	config.DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	config.DatabaseURL = os.Getenv("DATABASE_URL")
 	config.MigrationURL = os.Getenv("MIGRATION_URL")
 	config.Port = os.Getenv("PORT")
 	config.LogType = os.Getenv("LOG_TYPE")
 	config.Env = os.Getenv("ENV")
 }
-
-var (
-	DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	DB  = models.DBModel{DB: nil}
-)
 
 func IsValidDate(dateString string) (bool, time.Time) {
 	date, err := time.Parse("2006-01-02", dateString)

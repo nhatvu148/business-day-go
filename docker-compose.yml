@@ -12,6 +12,8 @@ services:
       - ROOT_PATH=/app
       - PORT=54528
       - ENV=production
+      - DATABASE_URL=postgresql://postgres:123456789@postgres:5432/custom_holiday?sslmode=disable
+      - MIGRATION_URL=file:///app/db/migration
     ports:
       - "54528:54528"
     networks:

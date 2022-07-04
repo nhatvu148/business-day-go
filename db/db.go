@@ -4,9 +4,10 @@ import (
 	"database/sql"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/rs/zerolog/log"
-
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 func OpenDB(dsn string) (*sql.DB, error) {
@@ -41,4 +42,6 @@ func RunDBMigration(migrationURL string, databaseURL string) {
 	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal().Err(err).Msg("failed to run migrate up")
 	}
+
+	log.Info().Msg("DB migrated successfully")
 }

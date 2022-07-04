@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -14,12 +15,13 @@ import (
 
 type Application struct {
 	Config tools.Config
+	Conn   *sql.DB
 	DB     models.DBModel
 }
 
 func (app *Application) Routes() http.Handler {
 	r := http.NewServeMux()
-	r.HandleFunc("/ui", app.HomePageHandler)
+	r.HandleFunc("/", app.HomePageHandler)
 	r.HandleFunc("/catfact", app.CatFactPageHandler)
 	r.HandleFunc("/api/v1/business-day", app.BusinessDayHandler)
 	r.HandleFunc("/api/v1/custom-holiday", app.CustomHolidayHandler)
@@ -49,12 +51,12 @@ func SetupApp() *Application {
 	config.SetLogger()
 
 	conn := db.InitDB(config.DatabaseURL)
-	defer conn.Close()
 
-	// db.RunDBMigration(config.MigrationURL, config.DatabaseURL)
+	db.RunDBMigration(config.MigrationURL, config.DatabaseURL)
 
 	app := &Application{
 		Config: config,
+		Conn:   conn,
 		DB:     models.DBModel{DB: conn},
 	}
 	return app
@@ -62,6 +64,7 @@ func SetupApp() *Application {
 
 func Run() {
 	app := SetupApp()
+	defer app.Conn.Close()
 
 	err := app.Serve()
 	if err != nil {

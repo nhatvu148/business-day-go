@@ -7,6 +7,9 @@ const nextConfig = {
     loader: "akamai",
     path: "/",
   },
+  publicRuntimeConfig: {
+    apiURL: process.env.API_URL,
+  },
 };
 
 module.exports = nextConfig;

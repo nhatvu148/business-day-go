@@ -1,4 +1,4 @@
-DB_URL=postgresql://postgres:123456789@postgres:5456/custom_holiday?sslmode=disable
+DB_URL=postgresql://postgres:123456789@postgres:5432/custom_holiday?sslmode=disable
 LOCAL_DB_URL=postgresql://postgres:123456789@localhost:5456/custom_holiday?sslmode=disable
 
 server: 

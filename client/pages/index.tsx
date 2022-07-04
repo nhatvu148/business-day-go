@@ -38,6 +38,13 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import moment from "moment";
 import Image from "next/image";
 import OpenDialogDragger from "components/Draggers/OpenDialogDragger";
+import {
+  addCustomHoliday,
+  deleteCustomHoliday,
+  getCustomHolidays,
+  updateCustomHoliday,
+} from "api/customHoliday";
+import { CustomHoliday } from "types";
 
 const Demo = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -60,7 +67,7 @@ function generate(element: React.ReactElement) {
 }
 
 const Home: NextPage = () => {
-  const [customHolidays, setCustomHolidays] = useState(initialCustomHolidays);
+  const [customHolidays, setCustomHolidays] = useState<CustomHoliday[]>([]);
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("");
   const [updatedCategory, setUpdatedCategory] = useState("");
@@ -73,6 +80,7 @@ const Home: NextPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [updatedDate, setUpdatedDate] = useState("");
+  const [refetch, setRefetch] = useState(0);
 
   useEffect(() => {
     if (isError) {
@@ -100,6 +108,14 @@ const Home: NextPage = () => {
       setUpdatedCategory(_updatedCategory);
     }
   }, [updatedDate, customHolidays]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await getCustomHolidays();
+      setCustomHolidays(res);
+      console.log(res);
+    })();
+  }, [refetch]);
 
   const handleNewDateChange = (newValue: moment.Moment | null) => {
     if (newValue !== null) {
@@ -131,7 +147,7 @@ const Home: NextPage = () => {
     closeDialog();
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (newDate === null || category === "") {
       setErrorMessage("Date or Category cannot be empty");
       setIsError(true);
@@ -143,10 +159,12 @@ const Home: NextPage = () => {
       setIsError(true);
       return;
     }
-    setCustomHolidays((prev) => [
-      ...prev,
-      { date: newDate.format("YYYY-MM-DD"), category },
-    ]);
+    // setCustomHolidays((prev) => [
+    //   ...prev,
+    //   { date: newDate.format("YYYY-MM-DD"), category },
+    // ]);
+    await addCustomHoliday({ date: newDate.format("YYYY-MM-DD"), category });
+    setRefetch((prev) => prev + 1);
     setNewDate(null);
 
     setSuccessMessage(`Added ${_newDate}`);
@@ -161,7 +179,7 @@ const Home: NextPage = () => {
     setUpdatedCategory(event.target.value);
   };
 
-  const updateHoliday = () => {
+  const updateHoliday = async () => {
     if (newUpdatedDate === null || updatedCategory === "") {
       setErrorMessage("Date or Category cannot be empty");
       setIsError(true);
@@ -177,21 +195,38 @@ const Home: NextPage = () => {
       setIsError(true);
       return;
     }
-    setCustomHolidays((prev) =>
-      prev.map((holiday) => {
-        if (holiday.date === updatedDate) {
-          return {
-            date: newUpdatedDate.format("YYYY-MM-DD"),
-            category: updatedCategory,
-          };
-        } else {
-          return holiday;
-        }
-      })
-    );
+    // setCustomHolidays((prev) =>
+    //   prev.map((holiday) => {
+    //     if (holiday.date === updatedDate) {
+    //       return {
+    //         date: newUpdatedDate.format("YYYY-MM-DD"),
+    //         category: updatedCategory,
+    //       };
+    //     } else {
+    //       return holiday;
+    //     }
+    //   })
+    // );
+    await updateCustomHoliday({
+      date: newUpdatedDate.format("YYYY-MM-DD"),
+      category: updatedCategory,
+    });
+    setRefetch((prev) => prev + 1);
 
     cancelEdit();
     setSuccessMessage(`Saved ${_newDate}`);
+    setIsSuccess(true);
+  };
+
+  const deleteHoliday = async (date: string) => {
+    // setCustomHolidays((prev) =>
+    //   prev.filter(
+    //     (holiday) => holiday.date !== day.date
+    //   )
+    // );
+    await deleteCustomHoliday(date);
+    setRefetch((prev) => prev + 1);
+    setSuccessMessage(`Deleted ${date}`);
     setIsSuccess(true);
   };
 
@@ -295,7 +330,7 @@ const Home: NextPage = () => {
                   .map((day, id: number) => {
                     if (day.date === updatedDate) {
                       return (
-                        <div>
+                        <div key={day.date}>
                           <div
                             style={{
                               marginTop: 5,
@@ -382,13 +417,7 @@ const Home: NextPage = () => {
                                   edge="end"
                                   aria-label="delete"
                                   onClick={() => {
-                                    setCustomHolidays((prev) =>
-                                      prev.filter(
-                                        (holiday) => holiday.date !== day.date
-                                      )
-                                    );
-                                    setSuccessMessage(`Deleted ${day.date}`);
-                                    setIsSuccess(true);
+                                    deleteHoliday(day.date);
                                   }}
                                 >
                                   <DeleteIcon sx={{ color: pink[500] }} />

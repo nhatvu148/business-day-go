@@ -1,3 +1,3 @@
-import { IAppState } from "./types";
+import { IAppState } from "./reducers";
 
 export const getDrag = (state: IAppState) => state.drag;

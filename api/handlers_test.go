@@ -16,7 +16,7 @@ import (
 func TestHomePageHandler(t *testing.T) {
 	app := api.SetupApp()
 
-	req := httptest.NewRequest(http.MethodGet, "/ui", nil)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 	app.HomePageHandler(w, req)
 	res := w.Result()

@@ -37,7 +37,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 		dateString := query.Get("date")
 		if dateString == "" {
 			// Get all Custom holidays
-			customHolidays, err := tools.DB.GetCustomHolidays()
+			customHolidays, err := app.DB.GetCustomHolidays()
 
 			if err != nil {
 				log.Err(err).Msg("Get Custom holidays error")
@@ -45,7 +45,13 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 				return
 			}
 
-			res, err := json.Marshal(customHolidays)
+			// Prevent Json Marshal from returning null when customHolidays is []
+			customHolidays1 := make([]models.CustomHoliday, 0)
+			if len(customHolidays) != 0 {
+				customHolidays1 = customHolidays
+			}
+
+			res, err := json.Marshal(customHolidays1)
 			if err != nil {
 				log.Err(err).Msg("JSON marshal error")
 				w.WriteHeader(http.StatusInternalServerError)
@@ -63,7 +69,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			}
 
 			// Get Custom holiday by date
-			customHoliday, err := tools.DB.GetCustomHolidayByDate(date)
+			customHoliday, err := app.DB.GetCustomHolidayByDate(date)
 
 			if err != nil {
 				// How to get pq error code?
@@ -111,7 +117,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 
 		customHoliday := models.CustomHoliday{Date: date, Category: category}
 
-		err = tools.DB.AddCustomHoliday(customHoliday)
+		err = app.DB.AddCustomHoliday(customHoliday)
 		if err != nil {
 			log.Err(err).Msg("Insert customHoliday error")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -143,7 +149,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 
 		customHoliday := models.CustomHoliday{Date: date, Category: category}
 
-		err = tools.DB.UpdateCustomHoliday(customHoliday)
+		err = app.DB.UpdateCustomHoliday(customHoliday)
 		if err != nil {
 			// How to get pq error code?
 			if err.Error() == "sql: no rows in result set" {
@@ -169,7 +175,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		err := tools.DB.DeleteCustomHoliday(date)
+		err := app.DB.DeleteCustomHoliday(date)
 
 		if err != nil {
 			log.Err(err).Msg("Get Custom holiday by date error")
