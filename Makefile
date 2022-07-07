@@ -18,16 +18,16 @@ build-client:
 	NEXT_TELEMETRY_DISABLED=1 yarn run export
 
 pgadmin4:
-	docker-compose up pgadmin4 -d
+	docker-compose up -d pgadmin4
 
 dev-server:
-	docker-compose up dev-server dev-db --build
+	docker-compose up --build dev-server dev-db 
 
 test-server: 
-	docker-compose up test-server test-db --build
+	docker-compose up --build test-server test-db
 
 prod-server: 
-	docker-compose up prod-server prod-db --build
+	docker-compose up --build prod-server prod-db
 
 migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up

@@ -3,6 +3,7 @@ package tools
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -25,7 +26,7 @@ type Config struct {
 	DatabaseURL  string
 	DSN          string
 	MigrationURL string
-	Port         string
+	Port         int
 	LogType      string
 	Env          string
 }
@@ -35,7 +36,12 @@ func (config *Config) LoadConfig() {
 	config.DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	config.DatabaseURL = os.Getenv("DATABASE_URL")
 	config.MigrationURL = os.Getenv("MIGRATION_URL")
-	config.Port = os.Getenv("PORT")
+
+	p, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		log.Err(err).Msg("Convert string to int error")
+	}
+	config.Port = p
 	config.LogType = os.Getenv("LOG_TYPE")
 	config.Env = os.Getenv("ENV")
 }

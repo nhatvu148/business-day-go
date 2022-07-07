@@ -9,7 +9,7 @@ import (
 	"github.com/nhatvu148/business-day-go/db"
 	"github.com/nhatvu148/business-day-go/middlewares"
 	"github.com/nhatvu148/business-day-go/models"
-	tools "github.com/nhatvu148/business-day-go/tools"
+	"github.com/nhatvu148/business-day-go/tools"
 	"github.com/rs/zerolog/log"
 )
 
@@ -33,7 +33,7 @@ func (app *Application) Routes() http.Handler {
 
 func (app *Application) Serve() error {
 	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%s", app.Config.Port),
+		Addr:              fmt.Sprintf(":%d", app.Config.Port),
 		Handler:           app.Routes(),
 		IdleTimeout:       30 * time.Second,
 		ReadTimeout:       10 * time.Second,
@@ -41,7 +41,7 @@ func (app *Application) Serve() error {
 		WriteTimeout:      5 * time.Second,
 	}
 
-	log.Info().Msg(fmt.Sprintf("Starting HTTP server in %s mode on port %s\n", app.Config.Env, app.Config.Port))
+	log.Info().Str("mode", app.Config.Env).Int("port", app.Config.Port).Msg("Starting HTTP server")
 	return srv.ListenAndServe()
 }
 

@@ -14,6 +14,7 @@ import (
 )
 
 func cleanupDB(t testing.TB, app *api.Application) {
+	t.Helper()
 	req := httptest.NewRequest(http.MethodDelete, "/api/v1/custom-holiday", nil)
 	w := httptest.NewRecorder()
 	app.CustomHolidayHandler(w, req)
@@ -26,6 +27,7 @@ func cleanupDB(t testing.TB, app *api.Application) {
 }
 
 func addCustomHoliday(t testing.TB, app *api.Application, date, category string) {
+	t.Helper()
 	bodyReader := strings.NewReader(fmt.Sprintf(`{"date": "%v", "category": "%v"}`, date, category))
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/custom-holiday", bodyReader)
 	w := httptest.NewRecorder()
@@ -84,10 +86,10 @@ func TestCustomHolidayHandler(t *testing.T) {
 			t.Errorf("%v", err)
 		}
 
-		if result.Id == 0 {
-			t.Errorf("expected Id > 0 got %v", result.Id)
+		if result.ID == 0 {
+			t.Errorf("expected Id > 0 got %v", result.ID)
 		}
-		returningID = result.Id
+		returningID = result.ID
 
 		if res.StatusCode != http.StatusCreated {
 			t.Errorf("expected status code %v got %v", http.StatusCreated, res.StatusCode)
@@ -259,7 +261,7 @@ func TestIsBusinessDayHandler(t *testing.T) {
 			expected:    false,
 		},
 		{
-			description: "Test Case 5",
+			description: "Test Case 6",
 			date:        "2022-07-05",
 			expected:    false,
 		},

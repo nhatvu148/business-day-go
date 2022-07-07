@@ -7,6 +7,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+    depends_on:
+      - prod-db
     environment:
       - LOG_TYPE=USER_FRIENDLY
       - ROOT_PATH=/app
@@ -25,6 +27,8 @@ services:
     build:
       dockerfile: Dockerfile.dev
       context: .
+    depends_on:
+      - dev-db
     environment:
       - LOG_TYPE=USER_FRIENDLY
       - ROOT_PATH=/app
@@ -45,6 +49,8 @@ services:
     build:
       dockerfile: Dockerfile.dev
       context: .
+    depends_on:
+      - test-db
     environment:
       - LOG_TYPE=USER_FRIENDLY
       - ROOT_PATH=/app

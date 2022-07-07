@@ -2,13 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 
 	"github.com/nhatvu148/business-day-go/models"
-	tools "github.com/nhatvu148/business-day-go/tools"
+	"github.com/nhatvu148/business-day-go/tools"
 	"github.com/rs/zerolog/log"
 )
 
@@ -26,18 +27,18 @@ func (m *CustomError) Error() string {
 }
 
 type CustomHoliday struct {
-	Id       int64  `json:"id"`
+	ID       int64  `json:"id"`
 	Date     string `json:"date"`
 	Category string `json:"category"`
 }
 
-type IdResponse struct {
-	Id int64 `json:"id"`
+type IDResponse struct {
+	ID int64 `json:"id"`
 }
 
 func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		query := r.URL.Query()
 		dateString := query.Get("date")
 		if dateString == "" {
@@ -63,6 +64,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 				return
 			}
 
+			w.Header().Set("Content-Type", "application/json")
 			w.Write(res)
 		} else {
 			isDateValid, date := tools.IsValidDate(dateString)
@@ -78,7 +80,8 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 
 			if err != nil {
 				// How to get pq error code?
-				if err.Error() == "sql: no rows in result set" {
+				var ErrNoRowsFound = errors.New("sql: no rows in result set")
+				if err == ErrNoRowsFound {
 					log.Err(err).Msg("Date not found")
 					w.WriteHeader(http.StatusNotFound)
 				} else {
@@ -95,10 +98,11 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 				return
 			}
 
+			w.Header().Set("Content-Type", "application/json")
 			w.Write(res)
 		}
 
-	case "POST":
+	case http.MethodPost:
 		payload := CustomHoliday{}
 
 		body, err := ioutil.ReadAll(r.Body)
@@ -129,16 +133,17 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		jsonResp, err := json.Marshal(IdResponse{Id: id})
+		jsonResp, err := json.Marshal(IDResponse{ID: id})
 		if err != nil {
 			log.Err(err).Msg("JSON marshal error")
 		}
 
 		// WriteHeader before Write body to avoid superfluous response.WriteHeader call
 		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonResp)
 
-	case "PUT":
+	case http.MethodPut:
 		payload := CustomHoliday{}
 
 		body, err := ioutil.ReadAll(r.Body)
@@ -151,7 +156,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			log.Err(err).Msg("Unmarshal error")
 		}
 
-		id := payload.Id
+		id := payload.ID
 		dateString := payload.Date
 		category := payload.Category
 		isDateValid, date := tools.IsValidDate(dateString)
@@ -161,7 +166,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		customHoliday := models.CustomHoliday{Id: id, Date: date, Category: category}
+		customHoliday := models.CustomHoliday{ID: id, Date: date, Category: category}
 
 		err = app.DB.UpdateCustomHolidayById(customHoliday)
 		if err != nil {
@@ -176,7 +181,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-	case "DELETE":
+	case http.MethodDelete:
 		query := r.URL.Query()
 		dateString := query.Get("date")
 
@@ -249,6 +254,7 @@ func (app *Application) BusinessDayHandler(w http.ResponseWriter, r *http.Reques
 
 		log.Err(&CustomError{msg: result.Error}).Msg(result.Error)
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonResp)
 		return
 	}
@@ -272,5 +278,6 @@ func (app *Application) BusinessDayHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(res)
 }
