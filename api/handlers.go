@@ -36,6 +36,8 @@ type IDResponse struct {
 	ID int64 `json:"id"`
 }
 
+var ErrNoRowsFound = errors.New("sql: no rows in result set")
+
 func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -80,8 +82,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 
 			if err != nil {
 				// How to get pq error code?
-				var ErrNoRowsFound = errors.New("sql: no rows in result set")
-				if err == ErrNoRowsFound {
+				if errors.Is(err, ErrNoRowsFound) {
 					log.Err(err).Msg("Date not found")
 					w.WriteHeader(http.StatusNotFound)
 				} else {
@@ -171,7 +172,7 @@ func (app *Application) CustomHolidayHandler(w http.ResponseWriter, r *http.Requ
 		err = app.DB.UpdateCustomHolidayById(customHoliday)
 		if err != nil {
 			// How to get pq error code?
-			if err.Error() == "sql: no rows in result set" {
+			if errors.Is(err, ErrNoRowsFound) {
 				log.Err(err).Msg("Date not found")
 				w.WriteHeader(http.StatusNotFound)
 			} else {
