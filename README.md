@@ -8,15 +8,15 @@
 
 ## Run docker compose for test
 
-- docker-compose up test-server test-db --build
+- docker-compose up --build test-server test-db
 
 ## Run docker compose for development
 
-- docker-compose up dev-server dev-db --build
+- docker-compose up --build dev-server dev-db
 
 ## Run docker compose for production
 
-- docker-compose up prod-server prod-db --build
+- docker-compose up --build prod-server prod-db
 
 ## Create database migration
 
