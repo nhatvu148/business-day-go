@@ -1,4 +1,4 @@
-package web_test
+package api_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	web "github.com/nhatvu148/business-day-go/web"
+	"github.com/nhatvu148/business-day-go/api"
 )
 
 func TestGetCatFact(t *testing.T) {
@@ -32,7 +32,7 @@ func TestGetCatFact(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.description, func(t *testing.T) {
 			defer tt.server.Close()
-			resp, err := web.GetCatFact(tt.server.URL)
+			resp, err := api.GetCatFact(tt.server.URL)
 
 			if !reflect.DeepEqual(resp, tt.expectedResponse) {
 				t.Errorf("expected (%v), got (%v)", tt.expectedResponse, resp)

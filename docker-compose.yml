@@ -1,15 +1,119 @@
 version: "3.9"
 
 services:
-  golang-server:
-    container_name: golang-server
+  prod-server:
+    container_name: prod-server
     restart: always
     build:
       dockerfile: Dockerfile
       context: .
+    depends_on:
+      - prod-db
     environment:
       - LOG_TYPE=USER_FRIENDLY
       - ROOT_PATH=/app
-      - PORT=:54528
+      - PORT=54528
+      - ENV=production
+      - DATABASE_URL=postgresql://test_user:123456789@prod-db:5432/custom_holiday?sslmode=disable
+      - MIGRATION_URL=file:///app/db/migration
     ports:
       - "54528:54528"
+    networks:
+      - custom_holiday_network
+
+  dev-server:
+    container_name: dev-server
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    depends_on:
+      - dev-db
+    environment:
+      - LOG_TYPE=USER_FRIENDLY
+      - ROOT_PATH=/app
+      - PORT=54528
+      - ENV=development
+      - DATABASE_URL=postgresql://test_user:123456789@dev-db:5432/custom_holiday?sslmode=disable
+      - MIGRATION_URL=file:///app/db/migration
+    ports:
+      - "54528:54528"
+    volumes:
+      - .:/app
+    networks:
+      - custom_holiday_network
+    
+  test-server:
+    container_name: test-server
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    depends_on:
+      - test-db
+    environment:
+      - LOG_TYPE=USER_FRIENDLY
+      - ROOT_PATH=/app
+      - PORT=54529
+      - ENV=test
+      - DATABASE_URL=postgresql://test_user:123456789@test-db:5432/custom_holiday?sslmode=disable
+      - MIGRATION_URL=file:///app/db/migration
+    ports:
+      - "54529:54529"
+    volumes:
+      - .:/app
+    networks:
+      - custom_holiday_network
+
+  prod-db:
+    container_name: prod-db
+    image: postgres:latest
+    ports:
+      - 5456:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql:Z
+    env_file:
+      - .env
+    networks:
+      - custom_holiday_network
+
+  dev-db:
+    container_name: dev-db
+    image: postgres:latest
+    ports:
+      - 5457:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql:Z
+    env_file:
+      - .env
+    networks:
+      - custom_holiday_network
+
+  test-db:
+    container_name: test-db
+    image: postgres:latest
+    ports:
+      - 5458:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql:Z
+    env_file:
+      - .env.test
+    networks:
+      - custom_holiday_network
+
+  pgadmin4:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    env_file:
+      - .env
+    ports:
+      - "8989:80"
+    networks:
+      - custom_holiday_network
+
+networks:
+  custom_holiday_network:
+
+
+volumes:
+  postgresql-data:
