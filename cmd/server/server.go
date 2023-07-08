@@ -1,9 +1,9 @@
 package main
 
 import (
-	handlers "github.com/nhatvu148/business-day-go/handlers"
+	"github.com/nhatvu148/business-day-go/api"
 )
 
 func main() {
-	handlers.HandleRequests()
+	api.Run()
 }
